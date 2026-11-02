@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Visor urbanístico de Arroyomolinos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style> .leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container, .leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer { position: absolute; left: 0; top: 0; } .leaflet-container { overflow: hidden; } .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow { -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-user-drag: none; } .leaflet-tile::selection { background: transparent; } .leaflet-safari .leaflet-tile { image-rendering: -webkit-optimize-contrast; } .leaflet-safari .leaflet-tile-container { width: 1600px; height: 1600px; -webkit-transform-origin: 0 0; } .leaflet-marker-icon, .leaflet-marker-shadow { display: block; } .leaflet-container .leaflet-overlay-pane svg { max-width: none !important; max-height: none !important; } .leaflet-container .leaflet-marker-pane img, .leaflet-container .leaflet-shadow-pane img, .leaflet-container .leaflet-tile-pane img, .leaflet-container img.leaflet-image-layer, .leaflet-container .leaflet-tile { max-width: none !important; max-height: none !important; width: auto; padding: 0; } .leaflet-container img.leaflet-tile { mix-blend-mode: plus-lighter; } .leaflet-container.leaflet-touch-zoom { -ms-touch-action: pan-x pan-y; touch-action: pan-x pan-y; } .leaflet-container.leaflet-touch-drag { -ms-touch-action: pinch-zoom; touch-action: none; touch-action: pinch-zoom; } .leaflet-container.leaflet-touch-drag.leaflet-touch-zoom { -ms-touch-action: none; touch-action: none; } .leaflet-container { -webkit-tap-highlight-color: transparent; } .leaflet-container a { -webkit-tap-highlight-color: rgba(51, 181, 229, 0.4); } .leaflet-tile { filter: inherit; visibility: hidden; } .leaflet-tile-loaded { visibility: inherit; } .leaflet-zoom-box { width: 0; height: 0; -moz-box-sizing: border-box; box-sizing: border-box; z-index: 800; } .leaflet-overlay-pane svg { -moz-user-select: none; } .leaflet-pane { z-index: 400; } .leaflet-tile-pane { z-index: 200; } .leaflet-overlay-pane { z-index: 400; } .leaflet-shadow-pane { z-index: 500; } .leaflet-marker-pane { z-index: 600; } .leaflet-tooltip-pane { z-index: 650; } .leaflet-popup-pane { z-index: 700; } .leaflet-map-pane canvas { z-index: 100; } .leaflet-map-pane svg { z-index: 200; } .leaflet-vml-shape { width: 1px; height: 1px; } .lvml { behavior: url(#default#VML); display: inline-block; position: absolute; } .leaflet-control { position: relative; z-index: 800; pointer-events: visiblePainted; pointer-events: auto; } .leaflet-top, .leaflet-bottom { position: absolute; z-index: 1000; pointer-events: none; } .leaflet-top { top: 0; } .leaflet-right { right: 0; } .leaflet-bottom { bottom: 0; } .leaflet-left { left: 0; } .leaflet-control { float: left; clear: both; } .leaflet-right .leaflet-control { float: right; } .leaflet-top .leaflet-control { margin-top: 10px; } .leaflet-bottom .leaflet-control { margin-bottom: 10px; } .leaflet-left .leaflet-control { margin-left: 10px; } .leaflet-right .leaflet-control { margin-right: 10px; } .leaflet-fade-anim .leaflet-popup { opacity: 0; -webkit-transition: opacity 0.2s linear; -moz-transition: opacity 0.2s linear; transition: opacity 0.2s linear; } .leaflet-fade-anim .leaflet-map-pane .leaflet-popup { opacity: 1; } .leaflet-zoom-animated { -webkit-transform-origin: 0 0; -ms-transform-origin: 0 0; transform-origin: 0 0; } svg.leaflet-zoom-animated { will-change: transform; } .leaflet-zoom-anim .leaflet-zoom-animated { -webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1); -moz-transition: -moz-transform 0.25s cubic-bezier(0,0,0.25,1); transition: transform 0.25s cubic-bezier(0,0,0.25,1); } .leaflet-zoom-anim .leaflet-tile, .leaflet-pan-anim .leaflet-tile { -webkit-transition: none; -moz-transition: none; transition: none; } .leaflet-zoom-anim .leaflet-zoom-hide { visibility: hidden; } .leaflet-interactive { cursor: pointer; } .leaflet-grab { cursor: -webkit-grab; cursor: -moz-grab; cursor: grab; } .leaflet-crosshair, .leaflet-crosshair .leaflet-interactive { cursor: crosshair; } .leaflet-popup-pane, .leaflet-control { cursor: auto; } .leaflet-dragging .leaflet-grab, .leaflet-dragging .leaflet-grab .leaflet-interactive, .leaflet-dragging .leaflet-marker-draggable { cursor: move; cursor: -webkit-grabbing; cursor: -moz-grabbing; cursor: grabbing; } .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-image-layer, .leaflet-pane > svg path, .leaflet-tile-container { pointer-events: none; } .leaflet-marker-icon.leaflet-interactive, .leaflet-image-layer.leaflet-interactive, .leaflet-pane > svg path.leaflet-interactive, svg.leaflet-image-layer.leaflet-interactive path { pointer-events: visiblePainted; pointer-events: auto; } .leaflet-container { background: #ddd; outline-offset: 1px; } .leaflet-container a { color: #0078A8; } .leaflet-zoom-box { border: 2px dotted #38f; background: rgba(255,255,255,0.5); } .leaflet-container { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-size: 12px; font-size: 0.75rem; line-height: 1.5; } .leaflet-bar { box-shadow: 0 1px 5px rgba(0,0,0,0.65); border-radius: 4px; } .leaflet-bar a { background-color: #fff; border-bottom: 1px solid #ccc; width: 26px; height: 26px; line-height: 26px; display: block; text-align: center; text-decoration: none; color: black; } .leaflet-bar a, .leaflet-control-layers-toggle { background-position: 50% 50%; background-repeat: no-repeat; display: block; } .leaflet-bar a:hover, .leaflet-bar a:focus { background-color: #f4f4f4; } .leaflet-bar a:first-child { border-top-left-radius: 4px; border-top-right-radius: 4px; } .leaflet-bar a:last-child { border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-bottom: none; } .leaflet-bar a.leaflet-disabled { cursor: default; background-color: #f4f4f4; color: #bbb; } .leaflet-touch .leaflet-bar a { width: 30px; height: 30px; line-height: 30px; } .leaflet-touch .leaflet-bar a:first-child { border-top-left-radius: 2px; border-top-right-radius: 2px; } .leaflet-touch .leaflet-bar a:last-child { border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; } .leaflet-control-zoom-in, .leaflet-control-zoom-out { font: bold 18px 'Lucida Console', Monaco, monospace; text-indent: 1px; } .leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out { font-size: 22px; } .leaflet-control-layers { box-shadow: 0 1px 5px rgba(0,0,0,0.4); background: #fff; border-radius: 5px; } .leaflet-control-layers-toggle { width: 36px; height: 36px; } .leaflet-retina .leaflet-control-layers-toggle { background-size: 26px 26px; } .leaflet-touch .leaflet-control-layers-toggle { width: 44px; height: 44px; } .leaflet-control-layers .leaflet-control-layers-list, .leaflet-control-layers-expanded .leaflet-control-layers-toggle { display: none; } .leaflet-control-layers-expanded .leaflet-control-layers-list { display: block; position: relative; } .leaflet-control-layers-expanded { padding: 6px 10px 6px 6px; color: #333; background: #fff; } .leaflet-control-layers-scrollbar { overflow-y: scroll; overflow-x: hidden; padding-right: 5px; } .leaflet-control-layers-selector { margin-top: 2px; position: relative; top: 1px; } .leaflet-control-layers label { display: block; font-size: 13px; font-size: 1.08333em; } .leaflet-control-layers-separator { height: 0; border-top: 1px solid #ddd; margin: 5px -10px 5px -6px; } .leaflet-default-icon-path { } .leaflet-container .leaflet-control-attribution { background: #fff; background: rgba(255, 255, 255, 0.8); margin: 0; } .leaflet-control-attribution, .leaflet-control-scale-line { padding: 0 5px; color: #333; line-height: 1.4; } .leaflet-control-attribution a { text-decoration: none; } .leaflet-control-attribution a:hover, .leaflet-control-attribution a:focus { text-decoration: underline; } .leaflet-attribution-flag { display: inline !important; vertical-align: baseline !important; width: 1em; height: 0.6669em; } .leaflet-left .leaflet-control-scale { margin-left: 5px; } .leaflet-bottom .leaflet-control-scale { margin-bottom: 5px; } .leaflet-control-scale-line { border: 2px solid #777; border-top: none; line-height: 1.1; padding: 2px 5px 1px; white-space: nowrap; -moz-box-sizing: border-box; box-sizing: border-box; background: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px #fff; } .leaflet-control-scale-line:not(:first-child) { border-top: 2px solid #777; border-bottom: none; margin-top: -2px; } .leaflet-control-scale-line:not(:first-child):not(:last-child) { border-bottom: 2px solid #777; } .leaflet-touch .leaflet-control-attribution, .leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar { box-shadow: none; } .leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar { border: 2px solid rgba(0,0,0,0.2); background-clip: padding-box; } .leaflet-popup { position: absolute; text-align: center; margin-bottom: 20px; } .leaflet-popup-content-wrapper { padding: 1px; text-align: left; border-radius: 12px; } .leaflet-popup-content { margin: 13px 24px 13px 20px; line-height: 1.3; font-size: 13px; font-size: 1.08333em; min-height: 1px; } .leaflet-popup-content p { margin: 17px 0; margin: 1.3em 0; } .leaflet-popup-tip-container { width: 40px; height: 20px; position: absolute; left: 50%; margin-top: -1px; margin-left: -20px; overflow: hidden; pointer-events: none; } .leaflet-popup-tip { width: 17px; height: 17px; padding: 1px; margin: -10px auto 0; pointer-events: auto; -webkit-transform: rotate(45deg); -moz-transform: rotate(45deg); -ms-transform: rotate(45deg); transform: rotate(45deg); } .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: white; color: #333; box-shadow: 0 3px 14px rgba(0,0,0,0.4); } .leaflet-container a.leaflet-popup-close-button { position: absolute; top: 0; right: 0; border: none; text-align: center; width: 24px; height: 24px; font: 16px/24px Tahoma, Verdana, sans-serif; color: #757575; text-decoration: none; background: transparent; } .leaflet-container a.leaflet-popup-close-button:hover, .leaflet-container a.leaflet-popup-close-button:focus { color: #585858; } .leaflet-popup-scrolled { overflow: auto; } .leaflet-oldie .leaflet-popup-content-wrapper { -ms-zoom: 1; } .leaflet-oldie .leaflet-popup-tip { width: 24px; margin: 0 auto; -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)"; filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678); } .leaflet-oldie .leaflet-control-zoom, .leaflet-oldie .leaflet-control-layers, .leaflet-oldie .leaflet-popup-content-wrapper, .leaflet-oldie .leaflet-popup-tip { border: 1px solid #999; } .leaflet-div-icon { background: #fff; border: 1px solid #666; } .leaflet-tooltip { position: absolute; padding: 6px; background-color: #fff; border: 1px solid #fff; border-radius: 3px; color: #222; white-space: nowrap; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,0.4); } .leaflet-tooltip.leaflet-interactive { cursor: pointer; pointer-events: auto; } .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { position: absolute; pointer-events: none; border: 6px solid transparent; background: transparent; content: ""; } .leaflet-tooltip-bottom { margin-top: 6px; } .leaflet-tooltip-top { margin-top: -6px; } .leaflet-tooltip-bottom:before, .leaflet-tooltip-top:before { left: 50%; margin-left: -6px; } .leaflet-tooltip-top:before { bottom: 0; margin-bottom: -12px; border-top-color: #fff; } .leaflet-tooltip-bottom:before { top: 0; margin-top: -12px; margin-left: -6px; border-bottom-color: #fff; } .leaflet-tooltip-left { margin-left: -6px; } .leaflet-tooltip-right { margin-left: 6px; } .leaflet-tooltip-left:before, .leaflet-tooltip-right:before { top: 50%; margin-top: -6px; } .leaflet-tooltip-left:before { right: 0; margin-right: -12px; border-left-color: #fff; } .leaflet-tooltip-right:before { left: 0; margin-left: -12px; border-right-color: #fff; } @media print { .leaflet-control { -webkit-print-color-adjust: exact; print-color-adjust: exact; } } </style>
+<style>
+/* Layout: barra superior con buscador · panel lateral (ficha / capas / leyenda) · mapa a pantalla completa; en móvil el panel es una hoja inferior. */
+:root{
+  --paper:#f3f5f7; --surface:#ffffff; --ink:#14283d; --muted:#5b6b7b; --line:#d5dde5;
+  --brand:#1f4e79; --brand-ink:#ffffff; --sel:#d10000; --sector:#6a3d9a; --parcel-line:#5f5a52;
+  --warn-bg:#fff1f0; --warn:#a10f0f; --map-bg:#e9ece8;
+  --f-sans:"Public Sans", "Segoe UI", system-ui, sans-serif; --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1a25; --surface:#152331; --ink:#e3ebf2; --muted:#93a4b5; --line:#2a3b4c;
+  --brand:#5a9bd5; --brand-ink:#08131d; --sel:#ff5a4f; --sector:#c4a3f0; --parcel-line:#3a3a3a;
+  --warn-bg:#3a1514; --warn:#ffb3ad; --map-bg:#1d2329; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0f1a25; --surface:#152331; --ink:#e3ebf2; --muted:#93a4b5; --line:#2a3b4c;
+  --brand:#5a9bd5; --brand-ink:#08131d; --sel:#ff5a4f; --sector:#c4a3f0; --parcel-line:#3a3a3a;
+  --warn-bg:#3a1514; --warn:#ffb3ad; --map-bg:#1d2329; color-scheme:dark }
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font:14px/1.45 var(--f-sans);display:flex;flex-direction:column;overflow:hidden}
+.barra{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--brand);color:var(--brand-ink)}
+.marca{display:flex;flex-direction:column;min-width:0}
+.marca h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.01em;text-wrap:balance}
+.marca p{margin:0;font-size:12px;opacity:.85}
+.busca{position:relative;flex:1 1 320px;max-width:560px;margin-left:auto}
+.busca input{width:100%;box-sizing:border-box;border:0;border-radius:6px;padding:10px 12px 10px 36px;font:inherit;font-size:15px;background:var(--surface);color:var(--ink)}
+.busca input:focus-visible{outline:3px solid #ffd166;outline-offset:1px}
+.busca svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none}
+#resultados{position:absolute;z-index:1200;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-height:60vh;overflow:auto}
+#resultados li{padding:7px 9px;border-radius:5px;cursor:pointer;display:flex;flex-direction:column}
+#resultados li[aria-selected="true"],#resultados li:hover{background:color-mix(in srgb,var(--brand) 12%,transparent)}
+.r1{font-weight:600}.r2{font-size:12px;color:var(--muted)}
+.cuerpo{flex:1;display:grid;grid-template-columns:380px 1fr;min-height:0}
+aside{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;min-width:0}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tab{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-weight:600;padding:11px 6px;cursor:pointer;border-bottom:3px solid transparent}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand)}
+.tab:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.panel-cuerpo{flex:1;overflow:auto;padding:16px 18px 24px;min-height:0}
+#mapa-wrap{position:relative;min-width:0;min-height:0}
+#mapa{position:absolute;inset:0;background:var(--map-bg)}
+.aviso-mapa{position:absolute;z-index:900;left:12px;bottom:12px;max-width:min(560px,calc(100% - 150px));margin:0;padding:6px 10px;border-radius:6px;background:var(--warn-bg);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);font-size:12px;line-height:1.35}
+.aviso-mapa b{font-weight:700}
+#cargando{position:absolute;z-index:950;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--paper) 80%,transparent);font-weight:600;color:var(--muted)}
+/* ficha */
+.eyebrow{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ficha-cab h2{margin:2px 0 4px;font-size:21px;line-height:1.2;text-wrap:balance}
+.sub{margin:0;color:var(--muted);font-size:13px}.mono{font-family:var(--f-mono);font-size:12.5px}
+.aviso-pend{margin:4px 0;display:inline-block;padding:2px 8px;border-radius:999px;background:var(--warn-bg);color:var(--warn);font-size:12px;font-weight:700}
+.bloque{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.bloque h3,details.bloque summary{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);font-weight:700}
+details.bloque summary{cursor:pointer;margin:0}
+details.bloque[open] summary{margin-bottom:8px}
+.ordenanza{display:flex;gap:9px;align-items:center;margin:0 0 8px;font-weight:600;font-size:15px}
+.pares{display:grid;grid-template-columns:minmax(110px,40%) 1fr;gap:4px 12px;margin:0}
+.pares dt{color:var(--muted);font-size:13px}.pares dd{margin:0;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.fuente{margin:8px 0 0;font-size:12px;color:var(--muted)}
+.lista{margin:0;padding-left:18px}.lista li{margin:2px 0}.lista.af li{font-size:13px}
+.vacio{margin:0;color:var(--muted)}
+.aviso-ficha{margin:18px 0 0;padding:9px 11px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-size:12.5px;font-weight:600}
+.acciones{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:6px;background:var(--brand);color:var(--brand-ink);font:inherit;font-weight:700;padding:10px 14px;cursor:pointer}
+.btn.sec{background:transparent;color:var(--brand);border:1px solid var(--brand);margin-top:14px}
+.btn:disabled{opacity:.6;cursor:progress}.btn:focus-visible{outline:3px solid #ffd166;outline-offset:2px}
+.estado-pdf{font-size:13px;color:var(--muted)}
+.inicio h2{margin:0 0 6px;font-size:19px}.inicio p{margin:0 0 10px;color:var(--muted)}
+.inicio ul{margin:0 0 12px;padding-left:18px}.inicio li{margin:3px 0}
+/* capas y leyenda */
+.grupo{border-bottom:1px solid var(--line);padding:8px 0}
+.grupo summary{cursor:pointer;font-weight:700;font-size:13px;padding:4px 0}
+.filas{display:flex;flex-direction:column;gap:2px;padding:4px 0 2px}
+.capa{display:flex;align-items:center;gap:9px;padding:4px 2px;cursor:pointer;font-size:13.5px}
+.capa input{accent-color:var(--brand);width:16px;height:16px;flex:none}
+.sw{width:16px;height:12px;border-radius:2px;background:var(--c);border:1px solid color-mix(in srgb,var(--c) 70%,#000);flex:none}
+.sw.linea{height:0;border:0;border-top:3px solid var(--c);border-radius:0}
+.sw.punto{width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--c)}
+.sw.grande{width:20px;height:16px}
+.nota{margin:4px 0 0 25px;font-size:12px;color:var(--muted)}
+.fondos{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.fondos h3,#panel-leyenda h3{margin:0 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand)}
+.fondos label{display:flex;gap:8px;align-items:center;font-size:13.5px;cursor:pointer}
+.fondos small{color:var(--muted);font-size:12px;margin-left:24px}
+#leyenda-calif{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:5px}
+#leyenda-calif li{display:flex;gap:9px;align-items:center;font-size:13px}
+.datos-meta{font-size:12px;color:var(--muted);margin:14px 0 0}
+.rot{background:none;border:0;pointer-events:none}
+.rot-in{position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap}
+.rot-parcela{display:flex;flex-direction:column;align-items:center;line-height:1.05;text-align:center}
+.rot-num{font:700 12px/1.1 var(--f-sans);color:#1d1d1d;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff}
+.rot-par{font:500 10px/1.1 var(--f-mono);color:#3a3a3a;text-shadow:0 0 2px #fff,0 0 2px #fff}
+.rot-manzana{font:700 12px/1 var(--f-sans);letter-spacing:.04em;color:#ffffff;background:rgba(31,78,121,.82);padding:2px 6px;border-radius:3px}
+.sw.rotulo{background:none;border:0;width:16px;height:auto;font:700 13px/1 var(--f-sans);color:var(--muted);text-align:center}
+.capa small.zoom{color:var(--muted);font-size:11.5px}
+/* leaflet */
+.leaflet-container{font:inherit;background:var(--map-bg)}
+.leaflet-popup-content{margin:10px 12px;font-size:13px}
+.pop b{display:block;margin-bottom:4px}.pop span{color:#667}
+.tip{font:12px/1.35 var(--f-sans);border-radius:5px}
+.leaflet-control-scale-line{font-family:var(--f-mono)}
+@media (max-width:760px){
+  .barra{gap:10px}.marca p{display:none}.busca{flex-basis:100%;max-width:none;margin-left:0}
+  .cuerpo{grid-template-columns:1fr;grid-template-rows:1fr}
+  #mapa-wrap{grid-row:1;grid-column:1}
+  aside{grid-row:1;grid-column:1;z-index:1000;align-self:end;max-height:46px;border-right:0;border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.18);border-radius:12px 12px 0 0;transition:max-height .2s ease;padding-bottom:env(safe-area-inset-bottom,0px)}
+  body.panel-abierto aside{max-height:58%}
+  .aviso-mapa{bottom:58px;left:8px;right:8px;max-width:none}
+  .leaflet-bottom.leaflet-right{margin-bottom:58px}
+  body.panel-abierto .leaflet-bottom,body.panel-abierto .aviso-mapa{display:none}
+}
+@media (prefers-reduced-motion:reduce){aside{transition:none}}
+</style>
+</head><body>
+<header class="barra">
+  <div class="marca"><h1>Visor urbanístico de Arroyomolinos</h1><p>Ayuntamiento de Arroyomolinos · Unidad de Planeamiento y Ejecución Urbanística</p></div>
+  <div class="busca" role="combobox" aria-haspopup="listbox" aria-owns="resultados">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="buscar" type="search" autocomplete="off" placeholder="Calle y número, referencia catastral o sector" aria-label="Buscar parcela" aria-controls="resultados" aria-expanded="false">
+    <ul id="resultados" role="listbox" hidden></ul>
+  </div>
+</header>
+<div class="cuerpo">
+  <aside>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-panel="ficha" aria-selected="true" type="button">Parcela</button>
+      <button class="tab" role="tab" data-panel="capas" aria-selected="false" type="button">Capas</button>
+      <button class="tab" role="tab" data-panel="leyenda" aria-selected="false" type="button">Leyenda</button>
+    </div>
+    <div class="panel-cuerpo" id="panel-ficha"><div id="ficha"></div></div>
+    <div class="panel-cuerpo" id="panel-capas" hidden>
+      <div id="lista-capas"></div>
+      <div class="fondos">
+        <h3>Fondo del mapa</h3>
+        <label><input type="radio" name="fondo" id="fondo-vec" value="vectorial" checked> Solo cartografía municipal</label>
+        <label><input type="radio" name="fondo" id="fondo-pnoa" value="pnoa"> Ortofoto PNOA (IGN)</label>
+        <label><input type="radio" name="fondo" id="fondo-cat" value="catastro"> Catastro</label>
+        <label><input type="radio" name="fondo" id="fondo-osm" value="osm"> OpenStreetMap</label>
+        <small>La ortofoto, el Catastro y OpenStreetMap se cargan desde servidores externos: solo se ven cuando el visor está publicado en un servidor propio (Ayuntamiento o GitHub).</small>
+      </div>
+    </div>
+    <div class="panel-cuerpo" id="panel-leyenda" hidden>
+      <h3>Calificación urbanística</h3>
+      <ul id="leyenda-calif"></ul>
+      <p class="datos-meta">Datos actualizados el <span id="fecha-datos">—</span>. Parámetros: planeamiento municipal, contrastado con el SIT de la Comunidad de Madrid (refundido 2025). Edificación: Catastro. Transporte: CRTM.</p>
+    </div>
+  </aside>
+  <div id="mapa-wrap">
+    <div id="mapa" aria-label="Mapa urbanístico de Arroyomolinos"></div>
+    <p class="aviso-mapa"><b>Aviso:</b> <span data-aviso>La información carece de valor legal y no reemplaza el contenido de los expedientes administrativos aprobados definitivamente.</span></p>
+    <div id="cargando">Cargando parcelario y capas…</div>
+  </div>
+</div>
+<template id="plantilla-inicio">
+  <div class="inicio">
+    <h2>Consulta urbanística por parcela</h2>
+    <p>Busque una dirección o una referencia catastral, o toque una parcela en el mapa. Verá:</p>
+    <ul>
+      <li>la ordenanza que le aplica y sus parámetros: edificabilidad, parcela mínima, ocupación y altura;</li>
+      <li>el sector, la manzana y el número de policía;</li>
+      <li>las afecciones sectoriales: carreteras, cauces, inundabilidad, espacios protegidos, patrimonio…;</li>
+      <li>el contraste con el planeamiento del SIT y la edificación existente según Catastro.</li>
+    </ul>
+    <p>Desde la ficha puede descargar la <b>ficha urbanística informativa en PDF</b>, con plano de ubicación y de situación.</p>
+    <p>En <b>Capas</b> puede activar equipamientos, farmacias, servicios, transporte público y afecciones.</p>
+    <p class="aviso-ficha" data-aviso>La información carece de valor legal y no reemplaza el contenido de los expedientes administrativos aprobados definitivamente.</p>
+  </div>
+</template>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="data/datos.js"></script>
+<script>/* Visor urbanístico de Arroyomolinos — lógica del mapa, consulta y ficha PDF */
+(function () {
+  "use strict";
+  const $ = (s, r = document) => r.querySelector(s);
+  const el = (tag, attrs = {}, kids = []) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+    }
+    for (const k of [].concat(kids)) if (k != null) e.append(k.nodeType ? k : document.createTextNode(k));
+    return e;
+  };
+  const fmt = (n, d = 0) => (n == null || isNaN(n)) ? "—" : Number(n).toLocaleString("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const v = (x) => (x == null || x === "" ? "—" : x);
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  let AVISO = "La información carece de valor legal y no reemplaza el contenido de los expedientes administrativos aprobados definitivamente.";
+  const PENDIENTE = "Pendiente de verificación";
+  const NOTA_REM = "Remanente y viviendas potenciales: estimación a partir de datos catastrales; deben cotejarse con los expedientes administrativos y con las posibles actuaciones posteriores.";
+
+  // ---------------------------------------------------------------- carga de datos
+  function b64aBytes(b64) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+  async function gunzipJSON(buf) {
+    const ds = new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"));
+    return JSON.parse(await new Response(ds).text());
+  }
+  async function cargar(url) {
+    const clave = url.includes("parcelas") ? "parcelas" : "capas";
+    if (window.__VISOR_DATA && window.__VISOR_DATA[clave]) return gunzipJSON(b64aBytes(window.__VISOR_DATA[clave]));
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(url + " · " + r.status);
+    let buf;
+    if (url.endsWith(".gz.txt")) { const b64 = (await r.text()).trim(); const bin = atob(b64); buf = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i); }
+    else buf = new Uint8Array(await r.arrayBuffer());
+    if (buf[0] === 0x1f && buf[1] === 0x8b) {
+      const ds = new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"));
+      return JSON.parse(await new Response(ds).text());
+    }
+    return JSON.parse(new TextDecoder().decode(buf));
+  }
+
+  // ---------------------------------------------------------------- mapa
+  const map = L.map("mapa", { preferCanvas: true, zoomControl: false, minZoom: 12, maxZoom: 21, attributionControl: true });
+  L.control.zoom({ position: "topright" }).addTo(map);
+  L.control.scale({ position: "bottomright", imperial: false }).addTo(map);
+  map.attributionControl.setPrefix(false);
+  map.attributionControl.addAttribution("Ayto. de Arroyomolinos · SIT Comunidad de Madrid · Catastro · CRTM · OSM");
+  const renderer = L.canvas({ padding: 0.3, tolerance: 3 });
+
+  const FONDOS = {
+    vectorial: null,
+    pnoa: L.tileLayer.wms("https://www.ign.es/wms-inspire/pnoa-ma", { layers: "OI.OrthoimageCoverage", format: "image/jpeg", maxZoom: 21, attribution: "PNOA © IGN" }),
+    catastro: L.tileLayer.wms("https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx", { layers: "Catastro", format: "image/png", transparent: true, maxZoom: 21, attribution: "© Catastro" }),
+    osm: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 21, maxNativeZoom: 19, attribution: "© OpenStreetMap" })
+  };
+  let fondoActual = null;
+  function ponerFondo(k) {
+    if (fondoActual) map.removeLayer(fondoActual);
+    fondoActual = FONDOS[k]; if (fondoActual) { fondoActual.addTo(map); fondoActual.bringToBack(); }
+    document.documentElement.dataset.fondo = k;
+  }
+
+  // ---------------------------------------------------------------- estado
+  let D = null, PARC = null, META = {}, COLORES = {};
+  let capaParcelas, capaSel, capaSectores, capaTermino, capaLineas, capaParadas;
+  const grupos = {};
+  let seleccion = null;
+
+  const AF_ESTILO = {
+    carreteras_zonas: ["#c0392b", "Zonas legales de carreteras"], carreteras_linea_edificacion: ["#c0392b", "Línea límite de edificación"],
+    ruido_lden: ["#8e44ad", "Ruido de carreteras (Lden)"], dph_deslindado: ["#0b4f8a", "Dominio público hidráulico deslindado"],
+    dph_estimado: ["#2471a3", "Dominio público hidráulico (estimado)"], cauces_servidumbre_policia: ["#5dade2", "Cauces: servidumbre 5 m y policía 100 m"],
+    inund_zfp: ["#1b4f72", "Zona de flujo preferente"], inund_t10: ["#1f618d", "Zona inundable T10"], inund_t100: ["#2e86c1", "Zona inundable T100"],
+    inund_t500: ["#85c1e9", "Zona inundable T500"], vias_pecuarias: ["#a0522d", "Vías pecuarias"], pr_guadarrama: ["#1e8449", "Parque Regional del Guadarrama"],
+    lic_zec: ["#239b56", "Red Natura 2000 (LIC/ZEC)"], montes_preservados: ["#52be80", "Montes preservados"], arqueologia_areas: ["#b9770e", "Protección arqueológica"],
+    vivienda_protegida_ambitos: ["#d35400", "Vivienda protegida (ámbitos)"], cementerios: ["#566573", "Cementerio"], edar: ["#566573", "Depuradora (EDAR)"],
+    aero_uas: ["#7d3c98", "Zonas aeronáuticas (UAS)"]
+  };
+  const AF_GRUPOS = [
+    ["Carreteras y ruido", ["carreteras_zonas", "carreteras_linea_edificacion", "ruido_lden"]],
+    ["Cauces e inundabilidad", ["dph_deslindado", "dph_estimado", "cauces_servidumbre_policia", "inund_zfp", "inund_t10", "inund_t100", "inund_t500"]],
+    ["Medio natural", ["pr_guadarrama", "lic_zec", "montes_preservados", "vias_pecuarias"]],
+    ["Patrimonio y vivienda", ["arqueologia_areas", "vivienda_protegida_ambitos"]],
+    ["Infraestructuras y servidumbres", ["aero_uas", "cementerios", "edar"]]
+  ];
+  const EQ_COLOR = {
+    "Colegio (Infantil y Primaria)": "#1565c0", "Instituto (Secundaria)": "#0d47a1", "Escuela infantil (0-3)": "#5c9ad6",
+    "Centro de salud / consultorio": "#c62828", "Farmacia": "#2e7d32", "Instalación deportiva": "#e67e22"
+  };
+  const SV_COLOR = "#6d4c41";
+
+  function colorCalif(o) { return COLORES[o] || "#cfcfcf"; }
+  function popupHTML(titulo, filas) {
+    return `<div class="pop"><b>${titulo}</b>${filas.filter(f => f[1] != null && f[1] !== "" && f[1] !== "None").map(f => `<div><span>${f[0]}</span> ${f[1]}</div>`).join("")}</div>`;
+  }
+
+  // ---------------------------------------------------------------- construir capas
+  function construir() {
+    META = D._meta || {}; COLORES = META.colores_calificacion || {}; if (META.aviso_legal) AVISO = META.aviso_legal;
+    document.querySelectorAll("[data-aviso]").forEach(n => n.textContent = AVISO);
+    $("#fecha-datos").textContent = META.generado ? new Date(META.generado).toLocaleDateString("es-ES") : "—";
+
+    capaTermino = L.geoJSON(D.termino, { renderer, interactive: false, style: { color: cssVar("--ink"), weight: 2, dashArray: "6 4", fill: false } }).addTo(map);
+
+    // afecciones (por debajo de las parcelas cuando se activan, con transparencia)
+    for (const [, claves] of AF_GRUPOS) for (const k of claves) {
+      const g = D["af_" + k]; if (!g) continue;
+      const [col, tit] = AF_ESTILO[k];
+      grupos["af_" + k] = L.geoJSON(g, {
+        renderer,
+        style: { color: col, weight: 1.5, fillColor: col, fillOpacity: 0.28, opacity: 0.9 },
+        pointToLayer: (f, ll) => L.circleMarker(ll, { renderer, radius: 7, color: "#fff", weight: 1.5, fillColor: col, fillOpacity: 1 }),
+        onEachFeature: (f, l) => {
+          const p = f.properties || {};
+          const filas = Object.entries(p).slice(0, 4).map(([a, b]) => [a.replace(/^(DS_|CD_)/, "").replace(/_/g, " ").toLowerCase(), b]);
+          l.bindPopup(popupHTML(tit, filas));
+        }
+      });
+    }
+
+    // parcelas por calificación
+    const LINEA_PARC = cssVar("--parcel-line");
+    capaParcelas = L.geoJSON(PARC, {
+      renderer,
+      style: f => ({ color: LINEA_PARC, weight: 0.6, fillColor: colorCalif(f.properties.ordenanza), fillOpacity: 0.72 }),
+      onEachFeature: (f, l) => {
+        l.on("click", e => { L.DomEvent.stop(e); seleccionar(f, l, true); });
+        l.bindTooltip(() => `<b>${v(f.properties.direccion)}</b><br>${v(f.properties.ordenanza)}`, { sticky: true, direction: "top", className: "tip", opacity: 1 });
+      }
+    }).addTo(map);
+    grupos.parcelas = capaParcelas;
+
+    capaSectores = L.geoJSON(D.sectores, {
+      renderer, interactive: false,
+      style: { color: cssVar("--sector"), weight: 1.6, dashArray: "4 3", fill: false }
+    });
+    grupos.sectores = capaSectores;
+
+    // equipamientos y servicios
+    const eq = L.layerGroup();
+    L.geoJSON(D.equipamientos, {
+      pointToLayer: (f, ll) => L.circleMarker(ll, { renderer, radius: 6, color: "#fff", weight: 1.5, fillColor: EQ_COLOR[f.properties.categoria] || "#555", fillOpacity: 1 }),
+      onEachFeature: (f, l) => l.bindPopup(popupHTML(v(f.properties.nombre), [["Tipo", f.properties.tipo || f.properties.categoria], ["Titularidad", f.properties.titularidad]]))
+    }).addTo(eq);
+    grupos.equipamientos = eq;
+    grupos.servicios = L.geoJSON(D.servicios, {
+      pointToLayer: (f, ll) => L.circleMarker(ll, { renderer, radius: 6, color: "#fff", weight: 1.5, fillColor: SV_COLOR, fillOpacity: 1 }),
+      onEachFeature: (f, l) => l.bindPopup(popupHTML(v(f.properties.nombre), [["Categoría", f.properties.categoria], ["Dirección", f.properties.direccion]]))
+    });
+    grupos.zonas_verdes = L.geoJSON(D.zonas_verdes, { renderer, style: { color: "#2e7d32", weight: 1, fillColor: "#66bb6a", fillOpacity: 0.35 },
+      onEachFeature: (f, l) => l.bindPopup(popupHTML(v(f.properties.nombre || "Zona verde"), [])) });
+
+    // transporte con consulta
+    capaLineas = L.geoJSON(D.lineas, {
+      renderer,
+      style: f => ({ color: f.properties.color || "#8ebf42", weight: 3, opacity: 0.85 }),
+      onEachFeature: (f, l) => l.on("click", e => { L.DomEvent.stop(e); consultarLinea(f.properties.linea); })
+    });
+    capaParadas = L.geoJSON(D.paradas, {
+      pointToLayer: (f, ll) => L.circleMarker(ll, { renderer, radius: 4.5, color: "#1b5e20", weight: 1.5, fillColor: "#ffffff", fillOpacity: 1 }),
+      onEachFeature: (f, l) => l.on("click", e => { L.DomEvent.stop(e); consultarParada(f); })
+    });
+    grupos.transporte = L.layerGroup([capaLineas, capaParadas]);
+
+    capaSel = L.geoJSON(null, { renderer, interactive: false, style: { color: cssVar("--sel"), weight: 3.5, fill: false } }).addTo(map);
+
+    map.fitBounds(capaTermino.getBounds(), { padding: [10, 10] });
+    pintarCapas();
+    indexarBusqueda();
+    prepararRotulos();
+  }
+
+
+  // ---------------------------------------------------------------- rótulos (nº de policía, parcela, manzana)
+  const ROT = { numero: true, parcela: true, manzana: true };
+  let capaRotulos = null, PUNTOS = [], MANZANAS = [];
+  function puntoInterior(geom) {
+    // centroide del anillo exterior mayor (aproximación suficiente para rotular)
+    let mejor = null, amax = -1;
+    for (const pol of anillos(geom)) {
+      const r = pol[0]; let a = 0, cx = 0, cy = 0;
+      for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const f = r[j][0] * r[i][1] - r[i][0] * r[j][1]; a += f; cx += (r[j][0] + r[i][0]) * f; cy += (r[j][1] + r[i][1]) * f; }
+      if (Math.abs(a) > amax && a !== 0) { amax = Math.abs(a); mejor = [cy / (3 * a), cx / (3 * a), Math.abs(a)]; }
+    }
+    return mejor;
+  }
+  function prepararRotulos() {
+    const grupos = new Map();
+    for (const f of PARC.features) {
+      const p = f.properties, c = puntoInterior(f.geometry); if (!c) continue;
+      const num = (p.direccion || "").match(/,\s*([^,]+)$/); 
+      PUNTOS.push({ ll: L.latLng(c[0], c[1]), num: num ? num[1].trim() : "", par: p.parcela || "", area: c[2] });
+      if (p.manzana) {
+        const k = (p.sector || "") + "|" + p.manzana; const g = grupos.get(k) || { n: 0, lat: 0, lng: 0, txt: p.manzana, w: 0 };
+        g.lat += c[0] * c[2]; g.lng += c[1] * c[2]; g.w += c[2]; grupos.set(k, g);
+      }
+    }
+    MANZANAS = [...grupos.values()].map(g => ({ ll: L.latLng(g.lat / g.w, g.lng / g.w), txt: g.txt }));
+    capaRotulos = L.layerGroup().addTo(map);
+    map.on("moveend zoomend", pintarRotulos);
+    pintarRotulos();
+  }
+  function pintarRotulos() {
+    if (!capaRotulos) return;
+    capaRotulos.clearLayers();
+    const z = map.getZoom(), b = map.getBounds().pad(0.05);
+    const icono = (html, cls) => L.divIcon({ className: "rot", html: `<div class="rot-in ${cls}">${html}</div>`, iconSize: [0, 0] });
+    if (ROT.manzana && z >= 16 && z <= 18) {
+      for (const m of MANZANAS) if (b.contains(m.ll)) L.marker(m.ll, { icon: icono(m.txt, "rot-manzana"), interactive: false, keyboard: false }).addTo(capaRotulos);
+    }
+    if ((ROT.numero || ROT.parcela) && z >= 18) {
+      let n = 0;
+      for (const p of PUNTOS) {
+        if (!b.contains(p.ll)) continue;
+        const partes = [];
+        if (ROT.numero && p.num) partes.push(`<span class="rot-num">${p.num}</span>`);
+        if (ROT.parcela && p.par && z >= 19) partes.push(`<span class="rot-par">P. ${p.par}</span>`);
+        if (!partes.length) continue;
+        L.marker(p.ll, { icon: icono(partes.join(""), "rot-parcela"), interactive: false, keyboard: false }).addTo(capaRotulos);
+        if (++n > 900) break;
+      }
+    }
+  }
+  function filaRotulo(id, texto, nota) {
+    const cb = el("input", { type: "checkbox", id: "rot-" + id }); cb.checked = ROT[id];
+    cb.addEventListener("change", () => { ROT[id] = cb.checked; pintarRotulos(); });
+    return el("label", { class: "capa", for: "rot-" + id }, [cb, el("span", { class: "sw rotulo", text: "A" }), el("span", {}, [texto, nota ? el("small", { class: "zoom", text: " " + nota }) : null])]);
+  }
+
+  // ---------------------------------------------------------------- panel de capas
+  function filaCapa(id, texto, color, activa, forma) {
+    const cb = el("input", { type: "checkbox", id: "cap-" + id });
+    cb.checked = activa;
+    const set = () => { const g = grupos[id]; if (!g) return; if (cb.checked) { g.addTo(map); if (id.startsWith("af_")) g.bringToBack(); } else map.removeLayer(g); if (fondoActual) fondoActual.bringToBack(); capaSel.bringToFront(); };
+    cb.addEventListener("change", set);
+    if (activa) set();
+    return el("label", { class: "capa", for: "cap-" + id }, [cb, el("span", { class: "sw " + (forma || ""), style: `--c:${color}` }), el("span", { text: texto })]);
+  }
+  function pintarCapas() {
+    const cont = $("#lista-capas"); cont.innerHTML = "";
+    const sec = (t, kids, abierto) => el("details", Object.assign({ class: "grupo" }, abierto ? { open: "" } : {}), [el("summary", { text: t }), el("div", { class: "filas" }, kids)]);
+    cont.append(sec("Planeamiento", [
+      filaCapa("parcelas", "Calificación por parcela", "#fec44f", true),
+      filaCapa("sectores", "Sectores y ámbitos", cssVar("--sector"), false, "linea")
+    ], true));
+    cont.append(sec("Rótulos", [
+      filaRotulo("numero", "Números de policía", "(al acercarse)"),
+      filaRotulo("parcela", "Nombre de parcela", "(máximo acercamiento)"),
+      filaRotulo("manzana", "Manzanas", "(escala de barrio)")
+    ], true));
+    cont.append(sec("Equipamientos y servicios", [
+      filaCapa("equipamientos", "Educación, salud, farmacias y deporte", "#1565c0", false, "punto"),
+      filaCapa("servicios", "Otros servicios (ayuntamiento, seguridad, cultura…)", SV_COLOR, false, "punto"),
+      filaCapa("zonas_verdes", "Parques y zonas verdes", "#66bb6a", false)
+    ], true));
+    cont.append(sec("Transporte público", [
+      filaCapa("transporte", "Líneas y paradas de autobús interurbano", "#8ebf42", false, "linea"),
+      el("p", { class: "nota", text: "Toque una línea para ver su recorrido y paradas, o una parada para ver las líneas que paran en ella." })
+    ], true));
+    for (const [t, claves] of AF_GRUPOS) {
+      cont.append(sec("Afecciones · " + t, claves.filter(k => grupos["af_" + k]).map(k => filaCapa("af_" + k, AF_ESTILO[k][1], AF_ESTILO[k][0], false,
+        (k === "carreteras_linea_edificacion" || k === "ruido_lden") ? "linea" : (k === "cementerios" || k === "edar") ? "punto" : "")), false));
+    }
+    // leyenda de calificación
+    const ley = $("#leyenda-calif"); ley.innerHTML = "";
+    const presentes = new Set(PARC.features.map(f => f.properties.ordenanza).filter(Boolean));
+    Object.entries(COLORES).filter(([k]) => presentes.has(k)).forEach(([k, c]) => ley.append(el("li", {}, [el("span", { class: "sw", style: `--c:${c}` }), el("span", { text: k })])));
+  }
+
+  // ---------------------------------------------------------------- transporte
+  function consultarLinea(codigo) {
+    if (!map.hasLayer(grupos.transporte)) { grupos.transporte.addTo(map); $("#cap-transporte").checked = true; }
+    const paradas = [];
+    capaLineas.eachLayer(l => {
+      const on = l.feature.properties.linea === codigo;
+      l.setStyle({ color: on ? cssVar("--sel") : "#b5b5b5", weight: on ? 5 : 2, opacity: on ? 1 : 0.5 }); if (on) l.bringToFront();
+    });
+    capaParadas.eachLayer(l => {
+      const ls = (l.feature.properties.lineas || "").split(", "); const on = ls.includes(codigo);
+      l.setStyle({ fillColor: on ? cssVar("--sel") : "#eeeeee", color: on ? "#fff" : "#9e9e9e", radius: on ? 6 : 3.5 }); if (on) { l.bringToFront(); paradas.push(l.feature.properties.nombre); }
+    });
+    const f = D.lineas.features.find(x => x.properties.linea === codigo);
+    panelTransporte(`Línea ${codigo}`, f ? f.properties.nombre : "", [
+      ["Expediciones diarias (aprox.)", f ? f.properties.expediciones : "—"],
+      ["Paradas en el municipio", String(new Set(paradas).size)]
+    ], [...new Set(paradas)].sort(), "Paradas");
+  }
+  function consultarParada(f) {
+    const ls = (f.properties.lineas || "").split(", ").filter(Boolean);
+    capaLineas.eachLayer(l => {
+      const on = ls.includes(l.feature.properties.linea);
+      l.setStyle({ color: on ? (l.feature.properties.color || "#8ebf42") : "#c8c8c8", weight: on ? 5 : 2, opacity: on ? 1 : 0.45 }); if (on) l.bringToFront();
+    });
+    capaParadas.eachLayer(l => {
+      const on = l.feature === f;
+      l.setStyle({ fillColor: on ? cssVar("--sel") : "#ffffff", color: on ? "#fff" : "#1b5e20", radius: on ? 7 : 4.5 }); if (on) l.bringToFront();
+    });
+    const nombres = ls.map(c => { const x = D.lineas.features.find(y => y.properties.linea === c); return `${c} · ${x ? x.properties.nombre : ""}`; });
+    panelTransporte(f.properties.nombre, "Parada · código CRTM " + v(f.properties.codigo), [["Líneas", String(ls.length)]], nombres, "Líneas que paran");
+  }
+  function quitarTransporte() {
+    capaLineas.eachLayer(l => l.setStyle({ color: l.feature.properties.color || "#8ebf42", weight: 3, opacity: 0.85 }));
+    capaParadas.eachLayer(l => l.setStyle({ fillColor: "#ffffff", color: "#1b5e20", radius: 4.5 }));
+  }
+  function panelTransporte(titulo, sub, datos, lista, tituloLista) {
+    const c = $("#ficha"); c.innerHTML = "";
+    c.append(
+      el("div", { class: "ficha-cab" }, [el("p", { class: "eyebrow", text: "Transporte público · CRTM" }), el("h2", { text: titulo }), el("p", { class: "sub", text: sub })]),
+      el("dl", { class: "pares" }, datos.flatMap(([a, b]) => [el("dt", { text: a }), el("dd", { text: v(b) })])),
+      el("h3", { text: tituloLista }),
+      el("ul", { class: "lista" }, lista.map(x => el("li", { text: x }))),
+      el("button", { class: "btn sec", type: "button", text: "Quitar consulta de transporte", onclick: () => { quitarTransporte(); mostrarInicio(); } })
+    );
+    abrirPanel("ficha");
+  }
+
+  // ---------------------------------------------------------------- búsqueda
+  let INDICE = [];
+  const norm = s => (s || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  function indexarBusqueda() {
+    INDICE = PARC.features.map(f => {
+      const p = f.properties;
+      return { f, t: norm([p.direccion, p.refcat, p.portal_nomecalles, p.sector, p.manzana && ("MANZANA " + p.manzana), p.parcela && ("PARCELA " + p.parcela)].join(" ")) };
+    });
+  }
+  function buscar(q) {
+    const n = norm(q); if (n.length < 2) return [];
+    const toks = n.split(" ");
+    const res = [];
+    for (const it of INDICE) { if (toks.every(t => it.t.includes(t))) { res.push(it.f); if (res.length > 400) break; } }
+    const nums = toks.filter(t => /^\d+$/.test(t)), letras = toks.filter(t => !/^\d+$/.test(t));
+    const score = f => {
+      const d = norm(f.properties.direccion); const num = (d.match(/(\d+)\s*$/) || [])[1];
+      let s = 0; if (letras.every(t => d.includes(t))) s -= 2; if (nums.length && nums.includes(num)) s -= 3; if (d.startsWith(n)) s -= 1; return s;
+    };
+    res.sort((a, b) => score(a) - score(b) || (a.properties.direccion || "").localeCompare(b.properties.direccion || "", "es", { numeric: true }));
+    return res.slice(0, 8);
+  }
+  const inp = $("#buscar"), lista = $("#resultados");
+  let activo = -1, actuales = [];
+  function pintarResultados() {
+    lista.innerHTML = "";
+    actuales.forEach((f, i) => lista.append(el("li", { role: "option", id: "res-" + i, "aria-selected": String(i === activo), onmousedown: e => { e.preventDefault(); elegir(i); } }, [
+      el("span", { class: "r1", text: f.properties.direccion || "Sin número de policía" }),
+      el("span", { class: "r2", text: [f.properties.refcat, f.properties.sector, f.properties.ordenanza].filter(Boolean).join(" · ") })
+    ])));
+    lista.hidden = actuales.length === 0;
+    inp.setAttribute("aria-expanded", String(!lista.hidden));
+  }
+  function elegir(i) {
+    const f = actuales[i]; if (!f) return;
+    lista.hidden = true; inp.value = f.properties.direccion || f.properties.refcat || "";
+    let lay = null; capaParcelas.eachLayer(l => { if (l.feature === f) lay = l; });
+    if (!map.hasLayer(capaParcelas)) { capaParcelas.addTo(map); $("#cap-parcelas").checked = true; }
+    const movil = window.matchMedia("(max-width: 760px)").matches;
+    map.fitBounds(lay.getBounds(), movil ? { maxZoom: 19, paddingTopLeft: [30, 30], paddingBottomRight: [30, Math.round(map.getSize().y * 0.62)] } : { maxZoom: 19, padding: [40, 40] });
+    seleccionar(f, lay);
+  }
+  inp.addEventListener("input", () => { actuales = buscar(inp.value); activo = -1; pintarResultados(); });
+  inp.addEventListener("keydown", e => {
+    if (e.key === "ArrowDown") { activo = Math.min(activo + 1, actuales.length - 1); pintarResultados(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { activo = Math.max(activo - 1, 0); pintarResultados(); e.preventDefault(); }
+    else if (e.key === "Enter") { elegir(activo < 0 ? 0 : activo); e.preventDefault(); }
+    else if (e.key === "Escape") { lista.hidden = true; }
+  });
+  inp.addEventListener("blur", () => setTimeout(() => lista.hidden = true, 120));
+
+  // ---------------------------------------------------------------- ficha en pantalla
+  function seleccionar(f, lay, desdeMapa) {
+    seleccion = f;
+    if (desdeMapa && window.matchMedia("(max-width: 760px)").matches) {
+      const pt = map.latLngToContainerPoint(lay.getBounds().getCenter()), h = map.getSize().y;
+      if (pt.y > h * 0.38) map.panBy([0, pt.y - h * 0.25]);
+    }
+    capaSel.clearLayers(); capaSel.addData(f); capaSel.bringToFront();
+    pintarFicha(f.properties);
+    abrirPanel("ficha");
+  }
+  function parametro(dt, dd) { return [el("dt", { text: dt }), el("dd", { text: v(dd) })]; }
+  function pintarFicha(p) {
+    const c = $("#ficha"); c.innerHTML = "";
+    const pend = p.contraste_policia === PENDIENTE;
+    const afs = (p.afecciones || "").split(" · ").filter(Boolean);
+    c.append(
+      el("div", { class: "ficha-cab" }, [
+        el("p", { class: "eyebrow", text: [p.sector, p.manzana && "Manzana " + p.manzana, p.parcela && "Parcela " + p.parcela].filter(Boolean).join(" · ") || "Parcela" }),
+        el("h2", { text: p.direccion || "Sin número de policía" }),
+        pend ? el("p", { class: "aviso-pend", text: "Nº de policía pendiente de verificación" }) : null,
+        el("p", { class: "sub mono", text: `Ref. catastral ${v(p.refcat)} · ${fmt(p.sup_parc)} m²` })
+      ]),
+      el("section", { class: "bloque" }, [
+        el("h3", { text: "Ordenanza de aplicación" }),
+        el("p", { class: "ordenanza" }, [el("span", { class: "sw grande", style: `--c:${colorCalif(p.ordenanza)}` }), el("span", { text: v(p.ordenanza) })]),
+        el("dl", { class: "pares" }, [
+          ...parametro("Uso global", p.uso_global), ...parametro("Edificabilidad", p.edificabilidad), ...parametro("Parcela mínima", p.parcela_min),
+          ...parametro("Ocupación máxima", p.ocupacion_max), ...parametro("Altura máxima", p.altura_max)
+        ]),
+        el("p", { class: "fuente", text: "Fuente: " + v(p.param_fuente) })
+      ]),
+      el("section", { class: "bloque" }, [
+        el("h3", { text: `Afecciones sectoriales (${afs.length})` }),
+        afs.length ? el("ul", { class: "lista af" }, afs.map(a => el("li", { text: a }))) : el("p", { class: "vacio", text: "No se han detectado afecciones sectoriales sobre la parcela." })
+      ]),
+      el("details", { class: "bloque plegable" }, [
+        el("summary", { text: "Planeamiento SIT · Comunidad de Madrid (refundido 2025)" }),
+        el("dl", { class: "pares" }, [
+          ...parametro("Clasificación", p.clasif_sit), ...parametro("Ámbito", [p.ambito_sit, p.figura_sit && `(${p.figura_sit})`].filter(Boolean).join(" ")),
+          ...parametro("Ordenanza", [p.ordenanza_sit, p.sit_grado].filter(Boolean).join(" · ")), ...parametro("Tipología", p.sit_tipologia),
+          ...parametro("Edificabilidad", p.sit_edif != null ? fmt(p.sit_edif, 2) + " m²/m²" : null),
+          ...parametro("Altura · plantas", [p.sit_altura != null ? fmt(p.sit_altura, 2) + " m" : null, p.sit_plantas != null ? p.sit_plantas + " pl." : null].filter(Boolean).join(" · ")),
+          ...parametro("Parcela mín. · ocupación", [p.sit_parc_min != null ? fmt(p.sit_parc_min) + " m²" : null, p.sit_ocup != null ? fmt(p.sit_ocup) + " %" : null].filter(Boolean).join(" · ")),
+          ...parametro("Retranqueos", (p.sit_ret_frente != null || p.sit_ret_lateral != null) ? `fachada ${v(p.sit_ret_frente)} · lateral ${v(p.sit_ret_lateral)} · fondo ${v(p.sit_ret_fondo)} m` : null),
+          ...parametro("Usos compatibles", p.sit_usos_compat), ...parametro("Usos prohibidos", p.sit_usos_prohib)
+        ])
+      ]),
+      el("details", { class: "bloque plegable" }, [
+        el("summary", { text: "Edificación existente (Catastro)" }),
+        el("dl", { class: "pares" }, [
+          ...parametro("Superficie construida", p.m2_const != null ? fmt(p.m2_const) + " m²" : null), ...parametro("Edificabilidad consumida", p.edif_cons != null ? fmt(p.edif_cons, 2) + " m²/m²" : null),
+          ...parametro("Ocupación actual", p.ocup_pct != null ? fmt(p.ocup_pct, 1) + " %" : null), ...parametro("Viviendas", p.viviendas), ...parametro("Año de construcción", p.anio_const),
+          ...parametro("Estado", p.estado), ...parametro("Remanente estimado*", p.remanente != null ? fmt(p.remanente) + " m²c" : null), ...parametro("Viviendas potenciales*", p.viv_pot)
+        ]),
+        el("p", { class: "fuente", text: "* " + NOTA_REM })
+      ]),
+      el("details", { class: "bloque plegable" }, [
+        el("summary", { text: "Localización" }),
+        el("dl", { class: "pares" }, [
+          ...parametro("Coordenadas UTM 30N (ETRS89)", `X ${fmt(p.x_utm, 1)} · Y ${fmt(p.y_utm, 1)}`),
+          ...parametro("Portal en Nomecalles", p.portal_nomecalles), ...parametro("Observaciones", p.observ)
+        ])
+      ]),
+      el("p", { class: "aviso-ficha", text: AVISO }),
+      el("div", { class: "acciones" }, [
+        el("button", { class: "btn", type: "button", id: "btn-pdf", text: "Descargar ficha (PDF)", onclick: () => descargarFicha(seleccion) }),
+        el("span", { class: "estado-pdf", id: "estado-pdf", role: "status" })
+      ])
+    );
+    c.scrollTop = 0;
+  }
+  function mostrarInicio() { $("#ficha").innerHTML = ""; $("#ficha").append($("#plantilla-inicio").content.cloneNode(true)); }
+
+  // ---------------------------------------------------------------- paneles (escritorio / móvil)
+  function abrirPanel(cual) {
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.panel === cual)));
+    document.querySelectorAll(".panel-cuerpo").forEach(p => p.hidden = p.id !== "panel-" + cual);
+    document.body.classList.add("panel-abierto");
+  }
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+    const yaAbierto = t.getAttribute("aria-selected") === "true" && document.body.classList.contains("panel-abierto");
+    if (yaAbierto && window.matchMedia("(max-width: 760px)").matches) document.body.classList.remove("panel-abierto"); else abrirPanel(t.dataset.panel);
+  }));
+  document.querySelectorAll("input[name=fondo]").forEach(r => r.addEventListener("change", () => ponerFondo(r.value)));
+  map.on("click", () => { capaSel.clearLayers(); seleccion = null; });
+
+  // ---------------------------------------------------------------- ficha PDF (vectorial, sin teselas externas)
+  const R = 6378137;
+  const merc = ([lon, lat]) => [R * lon * Math.PI / 180, R * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360))];
+  function anillos(geom) {
+    if (!geom) return [];
+    if (geom.type === "Polygon") return [geom.coordinates];
+    if (geom.type === "MultiPolygon") return geom.coordinates;
+    return [];
+  }
+  function bboxGeom(geom) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const pol of anillos(geom)) for (const ring of pol) for (const c of ring) { const [x, y] = merc(c); x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    return [x0, y0, x1, y1];
+  }
+  const ESCALAS = [500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000, 7500, 10000];
+  function dibujarPlano(f, wMM, hMM, dpmm) {
+    const cv = document.createElement("canvas"); cv.width = Math.round(wMM * dpmm); cv.height = Math.round(hMM * dpmm);
+    const ctx = cv.getContext("2d");
+    const lat = (f.properties.y_utm ? 40.27 : 40.27) * Math.PI / 180; // factor de escala Mercator en Arroyomolinos
+    const k = 1 / Math.cos(lat);
+    const [x0, y0, x1, y1] = bboxGeom(f.geometry);
+    const wm = (x1 - x0) / k, hm = (y1 - y0) / k; // metros reales
+    const esc = ESCALAS.find(s => wm * 1.3 <= wMM * s / 1000 && hm * 1.3 <= hMM * s / 1000) || 10000;
+    const mPorPx = esc / 1000 / dpmm; // metros reales por píxel
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const tx = x => (x - cx) / k / mPorPx + cv.width / 2, ty = y => cv.height / 2 - (y - cy) / k / mPorPx;
+    ctx.fillStyle = "#f6f4ef"; ctx.fillRect(0, 0, cv.width, cv.height);
+    const vx0 = cx - cv.width / 2 * mPorPx * k, vx1 = cx + cv.width / 2 * mPorPx * k, vy0 = cy - cv.height / 2 * mPorPx * k, vy1 = cy + cv.height / 2 * mPorPx * k;
+    const traza = geom => { ctx.beginPath(); for (const pol of anillos(geom)) for (const ring of pol) ring.forEach((c, i) => { const [x, y] = merc(c); i ? ctx.lineTo(tx(x), ty(y)) : ctx.moveTo(tx(x), ty(y)); }); };
+    // parcelas vecinas por calificación
+    for (const g of PARC.features) {
+      const b = g._bb || (g._bb = bboxGeom(g.geometry));
+      if (b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1) continue;
+      traza(g.geometry); ctx.fillStyle = colorCalif(g.properties.ordenanza); ctx.globalAlpha = 0.75; ctx.fill("evenodd"); ctx.globalAlpha = 1;
+      ctx.strokeStyle = "#5a5a5a"; ctx.lineWidth = Math.max(1, dpmm * 0.12); ctx.stroke();
+    }
+    // números de policía
+    ctx.fillStyle = "#222"; ctx.font = `${Math.round(dpmm * 2.4)}px Helvetica, Arial, sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (const g of PARC.features) {
+      const b = g._bb; if (!b || b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1) continue;
+      const num = (g.properties.direccion || "").split(",").pop().trim();
+      const wpx = (b[2] - b[0]) / k / mPorPx; if (num && wpx > dpmm * 6 && num.length < 8 && g !== f) ctx.fillText(num, tx((b[0] + b[2]) / 2), ty((b[1] + b[3]) / 2));
+    }
+    // parcela
+    traza(f.geometry); ctx.strokeStyle = "#d10000"; ctx.lineWidth = dpmm * 0.7; ctx.stroke();
+    // norte
+    ctx.fillStyle = "#111"; ctx.beginPath(); const nx = cv.width - dpmm * 8, ny = dpmm * 5;
+    ctx.moveTo(nx, ny); ctx.lineTo(nx - dpmm * 2.2, ny + dpmm * 6); ctx.lineTo(nx, ny + dpmm * 4.6); ctx.lineTo(nx + dpmm * 2.2, ny + dpmm * 6); ctx.closePath(); ctx.fill();
+    ctx.font = `bold ${Math.round(dpmm * 3)}px Helvetica, Arial`; ctx.fillText("N", nx, ny + dpmm * 8.5);
+    // barra de escala
+    const nice = [5, 10, 20, 25, 50, 100, 200, 250, 500];
+    const target = (wMM * 0.25) * esc / 1000; const seg = nice.reduce((a, b) => Math.abs(b - target) < Math.abs(a - target) ? b : a);
+    const segPx = seg / mPorPx, bx = dpmm * 6, by = cv.height - dpmm * 8;
+    ctx.fillStyle = "rgba(255,255,255,.9)"; ctx.fillRect(bx - dpmm * 2, by - dpmm * 5, segPx + dpmm * 30, dpmm * 9);
+    ctx.fillStyle = "#111"; ctx.fillRect(bx, by, segPx / 2, dpmm * 1.4); ctx.strokeStyle = "#111"; ctx.lineWidth = dpmm * 0.25; ctx.strokeRect(bx, by, segPx, dpmm * 1.4);
+    ctx.font = `${Math.round(dpmm * 2.4)}px Helvetica, Arial`; ctx.textAlign = "left";
+    ctx.fillText("0", bx - dpmm * 0.6, by - dpmm * 2); ctx.textAlign = "center"; ctx.fillText(seg + " m", bx + segPx, by - dpmm * 2);
+    ctx.textAlign = "left"; ctx.font = `bold ${Math.round(dpmm * 2.6)}px Helvetica, Arial`; ctx.fillText("Escala 1:" + esc.toLocaleString("es-ES"), bx + segPx + dpmm * 6, by + dpmm * 0.8);
+    return { url: cv.toDataURL("image/jpeg", 0.9), esc };
+  }
+  function dibujarSituacion(f, mm, dpmm) {
+    const cv = document.createElement("canvas"); cv.width = cv.height = Math.round(mm * dpmm);
+    const ctx = cv.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, cv.width, cv.height);
+    const t = D.termino.features[0].geometry; const [x0, y0, x1, y1] = bboxGeom(t);
+    const s = Math.max(x1 - x0, y1 - y0) * 1.08 / cv.width; const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const tx = x => (x - cx) / s + cv.width / 2, ty = y => cv.height / 2 - (y - cy) / s;
+    const traza = geom => { ctx.beginPath(); for (const pol of anillos(geom)) for (const ring of pol) ring.forEach((c, i) => { const [x, y] = merc(c); i ? ctx.lineTo(tx(x), ty(y)) : ctx.moveTo(tx(x), ty(y)); }); };
+    for (const g of PARC.features) { traza(g.geometry); ctx.fillStyle = "#d9d4c7"; ctx.fill("evenodd"); }
+    ctx.strokeStyle = "#6a3d9a"; ctx.lineWidth = dpmm * 0.25; for (const g of D.sectores.features) { traza(g.geometry); ctx.stroke(); }
+    traza(t); ctx.setLineDash([dpmm * 1.5, dpmm]); ctx.strokeStyle = "#111"; ctx.lineWidth = dpmm * 0.45; ctx.stroke(); ctx.setLineDash([]);
+    const [a, b, c2, d] = bboxGeom(f.geometry); const px = tx((a + c2) / 2), py = ty((b + d) / 2);
+    ctx.beginPath(); ctx.arc(px, py, dpmm * 1.8, 0, Math.PI * 2); ctx.fillStyle = "#d10000"; ctx.fill(); ctx.lineWidth = dpmm * 0.5; ctx.strokeStyle = "#fff"; ctx.stroke();
+    return cv.toDataURL("image/png");
+  }
+  async function descargarFicha(f) {
+    if (!f) return;
+    const st = $("#estado-pdf"); const btn = $("#btn-pdf");
+    btn.disabled = true; st.textContent = "Generando la ficha…";
+    try {
+      const p = f.properties; const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+      const fx = t => String(t).replace(/²/g, "2").replace(/≈/g, "~");
+      const _text = doc.text.bind(doc), _split = doc.splitTextToSize.bind(doc), _w = doc.getTextWidth.bind(doc);
+      doc.text = (t, ...a) => _text(Array.isArray(t) ? t.map(fx) : fx(t), ...a);
+      doc.splitTextToSize = (t, ...a) => _split(fx(t), ...a);
+      doc.getTextWidth = t => _w(fx(t));
+      const AZ = [31, 78, 121];
+      doc.setFillColor(...AZ); doc.rect(0, 0, 210, 17, "F");
+      doc.setTextColor(255); doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.text("FICHA URBANÍSTICA INFORMATIVA DE PARCELA", 8, 8.5);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.text("Ayuntamiento de Arroyomolinos · Unidad de Planeamiento y Ejecución Urbanística", 8, 13.5);
+      doc.setTextColor(20); doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text(p.direccion || "Sin número de policía", 8, 24);
+      if (p.contraste_policia === PENDIENTE) { const w = doc.getTextWidth(p.direccion || "Sin número de policía"); doc.setTextColor(176, 0, 0); doc.setFontSize(8.5); doc.text("· Nº de policía pendiente de verificación", 8 + w + 3, 24); doc.setTextColor(20); }
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+      doc.text(`Ref. catastral ${v(p.refcat)} · Sector ${v(p.sector)} · Manzana ${v(p.manzana)} · Parcela ${v(p.parcela)} · Superficie ${fmt(p.sup_parc)} m²`, 8, 29);
+      doc.setTextColor(80); doc.setFontSize(7.2);
+      doc.text(`Coordenadas ETRS89 UTM 30N: X ${fmt(p.x_utm, 1)} · Y ${fmt(p.y_utm, 1)} · Portal Nomecalles: ${v(p.portal_nomecalles)}`.slice(0, 160), 8, 33);
+      // planos
+      const pl = dibujarPlano(f, 194, 135, 8);
+      doc.addImage(pl.url, "JPEG", 8, 36, 194, 135); doc.setDrawColor(60); doc.setLineWidth(0.3); doc.rect(8, 36, 194, 135);
+      doc.addImage(dibujarSituacion(f, 46, 8), "PNG", 154, 38, 46, 46); doc.setDrawColor(60); doc.rect(154, 38, 46, 46);
+      doc.setFontSize(6.5); doc.setTextColor(40); doc.setFillColor(255, 255, 255); doc.rect(154, 84, 46, 4, "F"); doc.text("Situación en el término municipal", 177, 86.9, { align: "center" });
+      doc.setFontSize(6); doc.setTextColor(90); doc.text("Plano: calificación urbanística sobre parcelario municipal", 202, 169.3, { align: "right" });
+      // tablas
+      let y = 177;
+      const col = (x, titulo, filas, ancho) => {
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(...AZ); doc.text(titulo, x, y);
+        doc.setDrawColor(...AZ); doc.setLineWidth(0.3); doc.line(x, y + 1, x + ancho, y + 1);
+        let yy = y + 5; doc.setFontSize(7);
+        for (const [a, b] of filas) {
+          doc.setFont("helvetica", "normal"); doc.setTextColor(110); doc.text(a, x, yy);
+          doc.setTextColor(20); const t = doc.splitTextToSize(String(v(b)), ancho - 26); doc.text(t, x + 26, yy); yy += 3.6 * Math.max(1, t.length);
+        }
+        return yy;
+      };
+      const y1 = col(8, "ORDENANZA MUNICIPAL DE APLICACIÓN", [["Ordenanza", p.ordenanza], ["Uso global", p.uso_global], ["Edificabilidad", p.edificabilidad], ["Parcela mínima", p.parcela_min], ["Ocupación máx.", p.ocupacion_max], ["Altura máx.", p.altura_max], ["Fuente", p.param_fuente]], 95);
+      const y2 = col(107, "PLANEAMIENTO SIT · CM (REFUNDIDO 2025)", [["Clasificación", p.clasif_sit], ["Ámbito", [p.ambito_sit, p.figura_sit && `(${p.figura_sit})`].filter(Boolean).join(" ")],
+        ["Ordenanza", [p.ordenanza_sit, p.sit_grado].filter(Boolean).join(" · ")], ["Edif. · altura", `${p.sit_edif != null ? fmt(p.sit_edif, 2) : "—"} m²/m² · ${p.sit_altura != null ? fmt(p.sit_altura, 2) : "—"} m · ${v(p.sit_plantas)} pl.`],
+        ["Parc. mín. · ocup.", `${p.sit_parc_min != null ? fmt(p.sit_parc_min) : "—"} m² · ${p.sit_ocup != null ? fmt(p.sit_ocup) : "—"} %`],
+        ["Retranqueos", `fachada ${v(p.sit_ret_frente)} · lateral ${v(p.sit_ret_lateral)} · fondo ${v(p.sit_ret_fondo)} m`]], 95);
+      y = Math.max(y1, y2) + 2;
+      doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(...AZ);
+      const afs = (p.afecciones || "").split(" · ").filter(Boolean);
+      doc.text(`AFECCIONES SECTORIALES · ${afs.length}`, 8, y); doc.line(8, y + 1, 202, y + 1); y += 5;
+      doc.setFont("helvetica", "normal"); doc.setFontSize(6.8); doc.setTextColor(20);
+      if (!afs.length) { doc.text("No se han detectado afecciones sectoriales sobre la parcela.", 8, y); y += 4; }
+      else {
+        const mitad = Math.ceil(afs.length / 2); let ya = y, yb = y;
+        afs.forEach((a, i) => { const x = i < mitad ? 8 : 107; const t = doc.splitTextToSize("• " + a, 93); if (i < mitad) { doc.text(t, x, ya); ya += 3.3 * t.length; } else { doc.text(t, x, yb); yb += 3.3 * t.length; } });
+        y = Math.max(ya, yb) + 1;
+      }
+      y = Math.max(y, 250);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(...AZ); doc.text("EDIFICACIÓN EXISTENTE (Catastro)", 8, y); doc.line(8, y + 1, 202, y + 1); y += 4.6;
+      doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.setTextColor(20);
+      const ed = `Construido ${p.m2_const != null ? fmt(p.m2_const) : "—"} m² · edificabilidad consumida ${p.edif_cons != null ? fmt(p.edif_cons, 2) : "—"} m²/m² · ocupación ${p.ocup_pct != null ? fmt(p.ocup_pct, 1) : "—"} % · ${v(p.viviendas)} viv. · año ${v(p.anio_const)} · estado: ${v(p.estado)} · remanente estimado*: ${p.remanente != null ? fmt(p.remanente) : "—"} m²c · viviendas potenciales*: ${v(p.viv_pot)}`;
+      const te = doc.splitTextToSize(ed, 194); doc.text(te, 8, y); y += 3.4 * te.length;
+      doc.setFontSize(6); doc.setTextColor(100); const tn = doc.splitTextToSize("* " + NOTA_REM, 194); doc.text(tn, 8, y); y += 3 * tn.length + 1;
+      y = Math.max(y, 268);
+      doc.setFillColor(255, 243, 243); doc.setDrawColor(176, 0, 0); doc.setLineWidth(0.4); doc.rect(8, y, 194, 10, "FD");
+      doc.setTextColor(153, 0, 0); doc.setFontSize(7.6); doc.setFont("helvetica", "bold");
+      const ta = doc.splitTextToSize("AVISO: " + AVISO, 186); doc.text(ta, 105, y + 4.2, { align: "center" });
+      doc.setFont("helvetica", "normal"); doc.setFontSize(5.6); doc.setTextColor(110);
+      doc.text(`Fuentes: parcelario y planeamiento municipal (Ayto. de Arroyomolinos); SIT · Comunidad de Madrid (refundido 2025); Catastro; MITECO; CRTM; OpenStreetMap. Fecha de emisión: ${new Date().toLocaleDateString("es-ES")} · Visor urbanístico de Arroyomolinos.`, 8, 290, { maxWidth: 194 });
+      const blob = doc.output("blob");
+      const nombre = `ficha_${p.refcat || (p.direccion || "parcela").replace(/[^\wÁÉÍÓÚÑáéíóúñ]+/g, "_")}.pdf`;
+      const dl = window.claude && window.claude.use ? await window.claude.use("downloads").catch(() => null) : null;
+      if (dl) {
+        try { await dl.save({ filename: nombre, data: blob }); st.textContent = "Ficha guardada."; }
+        catch (e) { st.textContent = e && e.code === "declined" ? "Descarga cancelada." : "No se pudo guardar la ficha en esta vista."; }
+      } else {
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.append(a); a.click(); a.remove();
+        st.textContent = "Ficha descargada.";
+      }
+    } catch (e) { console.error(e); st.textContent = "No se pudo generar la ficha: " + e.message; }
+    finally { btn.disabled = false; }
+  }
+
+  // ---------------------------------------------------------------- arranque
+  mostrarInicio();
+  ponerFondo("vectorial");
+  Promise.all([cargar("data/capas.gz.txt"), cargar("data/parcelas.gz.txt")]).then(([capas, parc]) => {
+    D = capas; PARC = parc; construir();
+    document.body.classList.remove("cargando");
+    $("#cargando").hidden = true;
+  }).catch(e => { $("#cargando").textContent = "No se pudieron cargar los datos del visor (" + e.message + ")."; });
+})();
+</script>
+
+</body></html>
