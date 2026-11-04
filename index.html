@@ -250,14 +250,22 @@ details.bloque[open] summary{margin-bottom:8px}
     inund_t500: ["#85c1e9", "Zona inundable T500"], vias_pecuarias: ["#a0522d", "Vías pecuarias"], pr_guadarrama: ["#1e8449", "Parque Regional del Guadarrama"],
     lic_zec: ["#239b56", "Red Natura 2000 (LIC/ZEC)"], montes_preservados: ["#52be80", "Montes preservados"], arqueologia_areas: ["#b9770e", "Protección arqueológica"],
     vivienda_protegida_ambitos: ["#d35400", "Vivienda protegida (ámbitos)"], cementerios: ["#566573", "Cementerio"], edar: ["#566573", "Depuradora (EDAR)"],
-    aero_uas: ["#7d3c98", "Zonas aeronáuticas (UAS)"]
+    aero_uas: ["#7d3c98", "Zonas aeronáuticas (UAS)"],
+    ruido_ln: ["#5b2c6f", "Ruido de carreteras (Ln, noche)"],
+    lineas_electricas_franja: ["#e67e22", "Líneas eléctricas de AT: franja de protección"],
+    lineas_electricas_trazado: ["#d35400", "Líneas eléctricas de AT: trazado"]
   };
+  // isófonas de ruido coloreadas por nivel (dB(A))
+  const RUIDO_COL = [[75, "#67000d"], [70, "#c0392b"], [65, "#e67e22"], [60, "#f1c40f"], [55, "#9acd32"], [0, "#2e8b57"]];
+  function colRuido(db) { db = +db || 0; for (const [n, c] of RUIDO_COL) if (db >= n) return c; return "#2e8b57"; }
+  const ES_RUIDO = k => k === "ruido_lden" || k === "ruido_ln";
+  const ES_LINEA = k => ["carreteras_linea_edificacion", "ruido_lden", "ruido_ln", "lineas_electricas_trazado"].includes(k);
   const AF_GRUPOS = [
-    ["Carreteras y ruido", ["carreteras_zonas", "carreteras_linea_edificacion", "ruido_lden"]],
+    ["Carreteras y ruido", ["carreteras_zonas", "carreteras_linea_edificacion", "ruido_lden", "ruido_ln"]],
     ["Cauces e inundabilidad", ["dph_deslindado", "dph_estimado", "cauces_servidumbre_policia", "inund_zfp", "inund_t10", "inund_t100", "inund_t500"]],
     ["Medio natural", ["pr_guadarrama", "lic_zec", "montes_preservados", "vias_pecuarias"]],
     ["Patrimonio y vivienda", ["arqueologia_areas", "vivienda_protegida_ambitos"]],
-    ["Infraestructuras y servidumbres", ["aero_uas", "cementerios", "edar"]]
+    ["Infraestructuras y servidumbres", ["lineas_electricas_franja", "lineas_electricas_trazado", "aero_uas", "cementerios", "edar"]]
   ];
   const EQ_COLOR = {
     "Colegio (Infantil y Primaria)": "#1565c0", "Instituto (Secundaria)": "#0d47a1", "Escuela infantil (0-3)": "#5c9ad6",
@@ -284,10 +292,14 @@ details.bloque[open] summary{margin-bottom:8px}
       const [col, tit] = AF_ESTILO[k];
       grupos["af_" + k] = L.geoJSON(g, {
         renderer,
-        style: { color: col, weight: 1.5, fillColor: col, fillOpacity: 0.28, opacity: 0.9 },
+        style: f => ES_RUIDO(k) ? { color: colRuido((f.properties || {}).lden ?? (f.properties || {}).ln), weight: 2.2, opacity: 0.95 }
+          : k === "lineas_electricas_trazado" ? { color: col, weight: 2.5, opacity: 0.95 }
+          : k === "lineas_electricas_franja" ? { color: col, weight: 1.2, dashArray: "5 4", fillColor: col, fillOpacity: 0.22, opacity: 0.9 }
+          : { color: col, weight: 1.5, fillColor: col, fillOpacity: 0.28, opacity: 0.9 },
         pointToLayer: (f, ll) => L.circleMarker(ll, { renderer, radius: 7, color: "#fff", weight: 1.5, fillColor: col, fillOpacity: 1 }),
         onEachFeature: (f, l) => {
           const p = f.properties || {};
+          if (ES_RUIDO(k)) { l.bindPopup(popupHTML(tit, [["Carretera", String(p.sourceiden || "").replace(/^C_MAD_(28_)?/, "")], ["Nivel", (p.lden ?? p.ln) + " dB(A)"]])); return; }
           const filas = Object.entries(p).slice(0, 4).map(([a, b]) => [a.replace(/^(DS_|CD_)/, "").replace(/_/g, " ").toLowerCase(), b]);
           l.bindPopup(popupHTML(tit, filas));
         }
@@ -435,7 +447,7 @@ details.bloque[open] summary{margin-bottom:8px}
     ], true));
     for (const [t, claves] of AF_GRUPOS) {
       cont.append(sec("Afecciones · " + t, claves.filter(k => grupos["af_" + k]).map(k => filaCapa("af_" + k, AF_ESTILO[k][1], AF_ESTILO[k][0], false,
-        (k === "carreteras_linea_edificacion" || k === "ruido_lden") ? "linea" : (k === "cementerios" || k === "edar") ? "punto" : "")), false));
+        ES_LINEA(k) ? "linea" : (k === "cementerios" || k === "edar") ? "punto" : "")), false));
     }
     // leyenda de calificación
     const ley = $("#leyenda-calif"); ley.innerHTML = "";
