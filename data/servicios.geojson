@@ -1,0 +1,25 @@
+{
+"type": "FeatureCollection",
+"name": "servicios",
+"xy_coordinate_resolution": 1e-06,
+"features": [
+{ "type": "Feature", "properties": { "categoria": "Gasolineras", "nombre": "Repsol", "direccion": "Autovía del Suroeste 23.5", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.922474, 40.301978 ] } },
+{ "type": "Feature", "properties": { "categoria": "Gasolineras", "nombre": "Repsol", "direccion": "Calle Fresadores 19", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.906306, 40.302111 ] } },
+{ "type": "Feature", "properties": { "categoria": "Cultura", "nombre": "Biblioteca municipal", "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.91618, 40.272436 ] } },
+{ "type": "Feature", "properties": { "categoria": "Cultura", "nombre": "Cinesa Xanadú", "direccion": "", "web": "https://www.cinesa.es/Cines/Xanadu" }, "geometry": { "type": "Point", "coordinates": [ -3.92396, 40.300307 ] } },
+{ "type": "Feature", "properties": { "categoria": "Deporte", "nombre": "Polideportivo Los Mosquitos", "direccion": "Calle de Santander", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.913526, 40.291789 ] } },
+{ "type": "Feature", "properties": { "categoria": "Deporte", "nombre": null, "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.914441, 40.261604 ] } },
+{ "type": "Feature", "properties": { "categoria": "Gasolineras", "nombre": "Ballenoil", "direccion": "Calle Fresadores 7", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.904965, 40.303194 ] } },
+{ "type": "Feature", "properties": { "categoria": "Deporte", "nombre": "Snozone Madrid", "direccion": "", "web": "https://snozonemadrid.com/" }, "geometry": { "type": "Point", "coordinates": [ -3.925102, 40.298271 ] } },
+{ "type": "Feature", "properties": { "categoria": "Deporte", "nombre": "Ciudad Deportiva La Dehesa", "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.912333, 40.272795 ] } },
+{ "type": "Feature", "properties": { "categoria": "Deporte", "nombre": "Polideportivo Los Mosquitos", "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.912428, 40.291548 ] } },
+{ "type": "Feature", "properties": { "categoria": "Turismo e información", "nombre": "Motel Venus", "direccion": "Calle Fresadores 43", "web": "https://www.motel-venus.com/index.php?option=com_content&view=article&id=2&Itemid=160" }, "geometry": { "type": "Point", "coordinates": [ -3.902287, 40.304376 ] } },
+{ "type": "Feature", "properties": { "categoria": "Cultura", "nombre": "TAF centro musical", "direccion": "", "web": "https://www.taf.es/" }, "geometry": { "type": "Point", "coordinates": [ -3.903339, 40.304036 ] } },
+{ "type": "Feature", "properties": { "categoria": "Seguridad y emergencias", "nombre": "Guardia Civil - Cuartel de Arroyomolinos.", "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.912431, 40.274195 ] } },
+{ "type": "Feature", "properties": { "categoria": "Administración y servicios públicos", "nombre": "Ayuntamiento de Arroyomolinos", "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.920236, 40.267705 ] } },
+{ "type": "Feature", "properties": { "categoria": "Culto", "nombre": "Iglesia Parroquial de Nuestra Señora de la Asunción", "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.921093, 40.268161 ] } },
+{ "type": "Feature", "properties": { "categoria": "Aparcamientos públicos", "nombre": "Parking del Pinar", "direccion": "", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.913218, 40.266904 ] } },
+{ "type": "Feature", "properties": { "categoria": "Puntos limpios y reciclaje", "nombre": "Punto limpio de Arroyomolinos", "direccion": "Calle Torneros", "web": null }, "geometry": { "type": "Point", "coordinates": [ -3.904893, 40.301633 ] } },
+{ "type": "Feature", "properties": { "categoria": "Culto", "nombre": "Parroquia Santa Ángela de la Cruz", "direccion": "Calle de Marbella 34", "web": "http://www.parroquiarroyo.com/" }, "geometry": { "type": "Point", "coordinates": [ -3.915913, 40.279483 ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "af_edar",
+"xy_coordinate_resolution": 1e-06,
+"features": [
+{ "type": "Feature", "properties": { "DS_MUNICIPIO": "Arroyomolinos", "DS_NOMBRE": "Reguera, la", "DS_ESTADO": "EnServicio" }, "geometry": { "type": "Point", "coordinates": [ -3.886357, 40.293197 ] } }
+]
+}
