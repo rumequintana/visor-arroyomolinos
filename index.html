@@ -94,6 +94,7 @@ details.bloque[open] summary{margin-bottom:8px}
 .rot-parcela{display:flex;flex-direction:column;align-items:center;line-height:1.05;text-align:center}
 .rot-num{font:700 12px/1.1 var(--f-sans);color:#1d1d1d;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff}
 .rot-par{font:500 10px/1.1 var(--f-mono);color:#3a3a3a;text-shadow:0 0 2px #fff,0 0 2px #fff}
+.rot-calle{font:italic 600 11.5px/1 var(--f-sans);color:#4a3b2a;letter-spacing:.02em;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff,0 0 4px #fff}
 .rot-manzana{font:700 12px/1 var(--f-sans);letter-spacing:.04em;color:#ffffff;background:rgba(31,78,121,.82);padding:2px 6px;border-radius:3px}
 .sw.rotulo{background:none;border:0;width:16px;height:auto;font:700 13px/1 var(--f-sans);color:var(--muted);text-align:center}
 .capa small.zoom{color:var(--muted);font-size:11.5px}
@@ -139,8 +140,9 @@ details.bloque[open] summary{margin-bottom:8px}
         <label><input type="radio" name="fondo" id="fondo-vec" value="vectorial" checked> Solo cartografía municipal</label>
         <label><input type="radio" name="fondo" id="fondo-pnoa" value="pnoa"> Ortofoto PNOA (IGN)</label>
         <label><input type="radio" name="fondo" id="fondo-cat" value="catastro"> Catastro</label>
-        <label><input type="radio" name="fondo" id="fondo-osm" value="osm"> OpenStreetMap</label>
-        <small>La ortofoto, el Catastro y OpenStreetMap se cargan desde servidores externos: solo se ven cuando el visor está publicado en un servidor propio (Ayuntamiento o GitHub).</small>
+        <label><input type="radio" name="fondo" id="fondo-osm" value="osm"> Callejero OpenStreetMap</label>
+        <label><input type="radio" name="fondo" id="fondo-ign" value="ign"> Mapa base IGN (con calles)</label>
+        <small>La ortofoto, el Catastro, OpenStreetMap y el mapa del IGN se cargan desde servidores externos: solo se ven cuando el visor está publicado en un servidor propio (Ayuntamiento o GitHub).</small>
       </div>
     </div>
     <div class="panel-cuerpo" id="panel-leyenda" hidden>
@@ -172,7 +174,7 @@ details.bloque[open] summary{margin-bottom:8px}
 </template>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="data/datos.js"></script>
+<script src="data/datos.js?v=202611061626"></script>
 <script>/* Visor urbanístico de Arroyomolinos — lógica del mapa, consulta y ficha PDF */
 (function () {
   "use strict";
@@ -227,7 +229,8 @@ details.bloque[open] summary{margin-bottom:8px}
     vectorial: null,
     pnoa: L.tileLayer.wms("https://www.ign.es/wms-inspire/pnoa-ma", { layers: "OI.OrthoimageCoverage", format: "image/jpeg", maxZoom: 21, attribution: "PNOA © IGN" }),
     catastro: L.tileLayer.wms("https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx", { layers: "Catastro", format: "image/png", transparent: true, maxZoom: 21, attribution: "© Catastro" }),
-    osm: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 21, maxNativeZoom: 19, attribution: "© OpenStreetMap" })
+    osm: L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { subdomains: "abcd", maxZoom: 21, maxNativeZoom: 20, attribution: "© OpenStreetMap · © CARTO" }),
+    ign: L.tileLayer.wms("https://www.ign.es/wms-inspire/ign-base", { layers: "IGNBaseTodo", format: "image/png", maxZoom: 21, attribution: "Mapa base © IGN" })
   };
   let fondoActual = null;
   function ponerFondo(k) {
@@ -360,8 +363,8 @@ details.bloque[open] summary{margin-bottom:8px}
 
 
   // ---------------------------------------------------------------- rótulos (nº de policía, parcela, manzana)
-  const ROT = { numero: true, parcela: true, manzana: true };
-  let capaRotulos = null, PUNTOS = [], MANZANAS = [];
+  const ROT = { calles: true, numero: true, parcela: true, manzana: true };
+  let capaRotulos = null, PUNTOS = [], MANZANAS = [], CALLES = [];
   function puntoInterior(geom) {
     // centroide del anillo exterior mayor (aproximación suficiente para rotular)
     let mejor = null, amax = -1;
@@ -384,6 +387,7 @@ details.bloque[open] summary{margin-bottom:8px}
       }
     }
     MANZANAS = [...grupos.values()].map(g => ({ ll: L.latLng(g.lat / g.w, g.lng / g.w), txt: g.txt }));
+    CALLES = ((D.calles || {}).features || []).map(f => ({ ll: L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]), n: f.properties.n, a: f.properties.a || 0 }));
     capaRotulos = L.layerGroup().addTo(map);
     map.on("moveend zoomend", pintarRotulos);
     pintarRotulos();
@@ -393,6 +397,11 @@ details.bloque[open] summary{margin-bottom:8px}
     capaRotulos.clearLayers();
     const z = map.getZoom(), b = map.getBounds().pad(0.05);
     const icono = (html, cls) => L.divIcon({ className: "rot", html: `<div class="rot-in ${cls}">${html}</div>`, iconSize: [0, 0] });
+    if (ROT.calles && z >= 16) {
+      const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      for (const c of CALLES) if (b.contains(c.ll)) L.marker(c.ll, { interactive: false, keyboard: false, icon: L.divIcon({ className: "rot",
+        html: `<div class="rot-in rot-calle" style="transform:translate(-50%,-50%) rotate(${c.a}deg)">${esc(c.n)}</div>`, iconSize: [0, 0] }) }).addTo(capaRotulos);
+    }
     if (ROT.manzana && z >= 16 && z <= 18) {
       for (const m of MANZANAS) if (b.contains(m.ll)) L.marker(m.ll, { icon: icono(m.txt, "rot-manzana"), interactive: false, keyboard: false }).addTo(capaRotulos);
     }
@@ -432,6 +441,7 @@ details.bloque[open] summary{margin-bottom:8px}
       filaCapa("sectores", "Sectores y ámbitos", cssVar("--sector"), false, "linea")
     ], true));
     cont.append(sec("Rótulos", [
+      filaRotulo("calles", "Nombres de las calles", "(escala de barrio)"),
       filaRotulo("numero", "Números de policía", "(al acercarse)"),
       filaRotulo("parcela", "Nombre de parcela", "(máximo acercamiento)"),
       filaRotulo("manzana", "Manzanas", "(escala de barrio)")
