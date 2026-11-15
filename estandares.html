@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estándares urbanísticos · Arroyomolinos</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--paper:#f3f5f7;--surface:#fff;--ink:#14283d;--muted:#5b6b7b;--line:#d5dde5;--brand:#1f4e79;--brand-ink:#fff;
+--ok:#1a7f37;--ko:#c0392b;--ne:#777;--warn-bg:#fff1f0;--warn:#a10f0f;--f-sans:"Public Sans","Segoe UI",system-ui,sans-serif}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font:14px/1.45 var(--f-sans);display:flex;flex-direction:column;overflow:hidden}
+.barra{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 16px;background:var(--brand);color:var(--brand-ink)}
+.marca{display:flex;flex-direction:column;min-width:0}.marca h1{margin:0;font-size:17px;font-weight:700}
+.marca p{margin:0;font-size:12px;opacity:.85}
+.aviso{margin:0;padding:6px 10px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-size:12px;font-weight:600}
+
+.cuerpo{flex:1;display:grid;grid-template-columns:470px 1fr;min-height:0}
+aside{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.modos{display:flex;border-bottom:1px solid var(--line)}
+.modo{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-weight:700;padding:11px 6px;cursor:pointer;border-bottom:3px solid transparent}
+.modo[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand)}
+.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 16px;border-bottom:1px solid var(--line);font-size:13px}
+.ctrl select,.ctrl input{font:inherit;padding:3px 6px}
+.panel{flex:1;overflow:auto;padding:14px 16px 24px}
+#mapa{position:relative;min-height:0}#map{position:absolute;inset:0;background:#e9ece8}
+h2{margin:2px 0 4px;font-size:20px;line-height:1.2}h3{margin:16px 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand)}
+.sub{margin:0;color:var(--muted);font-size:13px}
+.badge{display:inline-block;margin:6px 0;padding:3px 10px;border-radius:999px;color:#fff;font-weight:700;font-size:12px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
+th{background:var(--brand);color:#fff;font-weight:600;padding:3px 4px;text-align:right}th:first-child{text-align:left}
+td{padding:3px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child{text-align:left}
+.ok{color:var(--ok);font-weight:700}.ko{color:var(--ko);font-weight:700}.ne{color:var(--ne)}
+.diag{background:#eef3f8;padding:8px 10px;border-radius:6px;font-size:13px;text-align:justify}
+.nota{font-size:12px;color:var(--muted)}
+.leyenda-col{display:flex;flex-direction:column;gap:3px;font-size:12.5px}
+.sw{display:inline-block;width:16px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(0,0,0,.25)}
+details{margin-top:14px;border-top:1px solid var(--line);padding-top:8px}summary{cursor:pointer;font-weight:700;color:var(--brand);font-size:13px}
+.ley p{margin:4px 0;font-size:12.5px}
+.inc{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:13px;margin:6px 0}
+.inc input,.inc select{width:100%;box-sizing:border-box;font:inherit;padding:3px 6px}
+.cargando{position:absolute;z-index:999;inset:0;display:grid;place-items:center;background:rgba(243,245,247,.8);font-weight:600;color:var(--muted)}
+.leaflet-container{font:inherit}.ley-mapa{background:#fff;padding:6px 9px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.3);font-size:12px;line-height:1.5}
+@media (max-width:820px){.cuerpo{grid-template-columns:1fr;grid-template-rows:52vh 1fr}aside{order:2}#mapa{order:1}}
+</style></head><body>
+<header class="barra"><div class="marca"><h1>Visor urbanístico de Arroyomolinos</h1>
+<p>Ayuntamiento de Arroyomolinos · Unidad de Planeamiento y Ejecución Urbanística</p></div><!--NAV-ESTANDARES--><style>.secciones{display:flex;gap:4px;flex-wrap:wrap}.secciones a{color:inherit;opacity:.85;text-decoration:none;font-weight:600;font-size:13.5px;padding:6px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.35)}.secciones a:hover{opacity:1;background:rgba(255,255,255,.12)}.secciones a.activa{opacity:1;background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.75)}</style><nav class="secciones" aria-label="Secciones"><a href="index.html">Visor urbanístico</a><a href="diagnostico.html">Diagnóstico urbano</a><a href="estandares.html" class="activa" aria-current="page">Estándares</a></nav><!--/NAV-ESTANDARES--></header>
+<div class="cuerpo">
+<aside>
+  <div class="modos" role="tablist">
+    <button class="modo" data-m="sectores" aria-selected="true">Sectores</button>
+    <button class="modo" data-m="celdas" aria-selected="false">Cuadrícula 500 m</button>
+    <button class="modo" data-m="parcela" aria-selected="false">Parcela</button>
+  </div>
+  <div class="ctrl"><label>Colorear por <select id="ind"><option value="std_rl">Redes locales / 100 m²c</option>
+    <option value="std_zv">Zonas verdes / 100 m²c</option><option value="cumple">Cumplimiento art. 36.6</option></select></label>
+    <label>Escenario <select id="escen"><option value="E0">E0 existente</option><option value="E1">E1 + sobrevenidas</option></select></label>
+    <label id="lradio" hidden>Radio <input id="radio" type="number" min="50" max="2000" step="50" value="300" style="width:70px"> m</label></div>
+  <div class="panel" id="panel"></div>
+</aside>
+<div id="mapa"><div id="map"></div><div class="cargando" id="cargando">Cargando…</div></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+<script src="data/estandares.js?v=202611151828"></script>
+<script src="data/datos.js?v=202611151828"></script>
+<script>
+(function(){
+const E = window.__ESTANDARES, P = E.param;
+const $ = s => document.querySelector(s);
+const f0 = x => x==null ? '—' : Math.round(x).toLocaleString('es-ES',{useGrouping:'always'});
+const f1 = x => x==null ? '—' : (Math.round(x*10)/10).toLocaleString('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
+const esc = t => String(t==null?'':t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const COL = [[-1e9,15,'#d7301f','< 15'],[15,30,'#fc8d59','15 – 30'],[30,50,'#a6d96a','30 – 50'],[50,1e12,'#1a9641','≥ 50']];
+const COLZV = [[-1e9,7.5,'#d7301f','< 7,5'],[7.5,15,'#fc8d59','7,5 – 15'],[15,25,'#a6d96a','15 – 25'],[25,1e12,'#1a9641','≥ 25']];
+let modo='sectores', capaSel=null, capaRadio=null, capaParc=null, parcelas=null, ultimo=null;
+
+const map = L.map('map',{zoomControl:true}).setView([40.27,-3.92],13);
+const pnoa = L.tileLayer.wms('https://www.ign.es/wms-inspire/pnoa-ma',{layers:'OI.OrthoimageCoverage',format:'image/jpeg',attribution:'PNOA © IGN',maxZoom:20});
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19});
+pnoa.addTo(map);
+L.control.layers({'Ortofoto PNOA':pnoa,'OpenStreetMap':osm},null,{position:'topright'}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+
+// ---------- redes y actuaciones (contexto)
+const capaRedes = L.geoJSON(E.redes,{interactive:false,style:f=>({weight:f.properties.n==='G'?1.2:0.6,color:f.properties.n==='G'?'#0b5d1e':'#333',
+  dashArray:f.properties.n==='G'?'4 3':null,fillOpacity:.45,fillColor:{Z:'#78be5a',E:'#5a8cd2',S:'#c88c3c'}[f.properties.r]})});
+const capaSob = L.geoJSON(E.sobrevenidas,{style:{color:'#c800a0',weight:2,fillColor:'#e600b4',fillOpacity:.25,dashArray:'5 3'},
+  onEachFeature:(f,l)=>l.bindTooltip(esc(f.properties.nombre))});
+
+function valor(p){const e=p[$('#escen').value]||p.E0; const k=$('#ind').value;
+  if(k==='cumple') return !p.exig?null:(e.edif>0?(e.cumple?1:0):null); return e[k];}
+function color(p){const v=valor(p); const k=$('#ind').value;
+  if(v==null) return '#bbbbbb';
+  if(k==='cumple') return v?'#1a9641':'#d7301f';
+  const cl = k==='std_zv'?COLZV:COL; for(const c of cl) if(v>=c[0]&&v<c[1]) return c[2]; return '#bbb';}
+function estilo(f){return {color:'#222',weight:modo==='sectores'?1.6:0.7,fillColor:color(f.properties),fillOpacity:modo==='parcela'?0:.55};}
+
+const capaSect = L.geoJSON(E.sectores,{style:estilo,onEachFeature:(f,l)=>{l.bindTooltip(esc((f.properties.codigo||'')+' '+f.properties.nombre),{sticky:true});
+  l.on('click',ev=>{ if(modo==='parcela') return; seleccionar(l,f.properties,'sector');});}});
+const capaCel = L.geoJSON(E.celdas,{style:estilo,onEachFeature:(f,l)=>{l.bindTooltip('Celda '+esc(f.properties.nombre),{sticky:true});
+  l.on('click',ev=>{ if(modo==='parcela') return; seleccionar(l,f.properties,'celda');});}});
+
+// ---------- leyenda del mapa
+const ley = L.control({position:'bottomright'});
+ley.onAdd = function(){ this._d = L.DomUtil.create('div','ley-mapa'); return this._d; };
+ley.addTo(map);
+function pintarLeyenda(){ const k=$('#ind').value; let h='<b>'+({std_rl:'Redes locales (m²s/100 m²c)',std_zv:'Zonas verdes (m²s/100 m²c)',cumple:'Art. 36.6'})[k]+'</b><br>';
+  if(k==='cumple') h+='<span class="sw" style="background:#1a9641"></span>Cumple<br><span class="sw" style="background:#d7301f"></span>No cumple<br>';
+  else for(const c of (k==='std_zv'?COLZV:COL)) h+='<span class="sw" style="background:'+c[2]+'"></span>'+c[3]+'<br>';
+  h+='<span class="sw" style="background:#bbb"></span>Sin dato / no exigible<br><span class="sw" style="background:#78be5a"></span>Zona verde <span class="sw" style="background:#5a8cd2"></span>Equipamiento<br><span class="sw" style="background:#e600b4;opacity:.5"></span>Actuación sobrevenida';
+  ley._d.innerHTML=h; }
+
+// ---------- fichas
+const LEYENDA = `<details class="ley"><summary>Estándares de referencia y siglas</summary>
+<p><b>Uso residencial.</b> Redes locales ≥ ${P.rl} m²s por cada 100 m²c (art. 36.6.a Ley 9/2001), sin viario; zonas verdes ≥ ${P.zv} m²s/100 m²c (36.6.b);
+aparcamiento en parcela según ordenanza (1 plaza/vivienda) y, en su defecto, 1,5 plazas/100 m²c (36.6.c); redes generales 20 m²s/100 m²c (36.5).
+Actuación de dotación (19 bis.2.c): cesión = incremento de m²c o de viviendas × estándar del área homogénea; no es necesario reajustar si tras el incremento se siguen cumpliendo los mínimos (19 bis.1).</p>
+<p><b>Uso no residencial.</b> Industrial: el 36.6 no es exigible (valores informativos). No cabe aumento de densidad (no se admiten viviendas). Más edificabilidad: incremento × estándar del área (19 bis.2.d.2º); nuevo uso no residencial: estudio específico de necesidades (19 bis.2.d.1º); cambio a residencial: viviendas × estándar por vivienda del área, o 15 m²s/viv. si no hay viviendas. Aparcamiento: 1/50 m²c comercial, 1/100 m²c oficinas e industria.</p>
+<p><b>Siglas.</b> RL: redes locales (equipamientos, servicios y zonas verdes, sin viario) · ZV: zonas verdes · RL/100, ZV/100: m²s por cada 100 m²c lucrativos no industriales · RL/viv: m²s por vivienda · E0: situación existente (Catastro) · E1: E0 + actuaciones sobrevenidas · SG adscritos: sistemas generales cedidos por el sector · Margen: m²c que admite el ámbito manteniendo los mínimos (negativo = exceso) · n/e: no exigible.</p>
+<p class="nota">Fuentes: SIT de la Comunidad de Madrid (redes del planeamiento refundido 2025), Catastro, fichas de las NN.SS. Datos de ${E.fecha}. La información carece de valor legal y no reemplaza el contenido de los expedientes administrativos aprobados definitivamente.</p></details>`;
+
+function cumpleTxt(p,e){ if(!p.exig) return '<span class="ne">n/e</span>'; if(!e||!(e.edif>0)) return '—'; return e.cumple?'<span class="ok">Sí</span>':'<span class="ko">No</span>'; }
+function badge(p){ const e=p.E0; if(!(e.edif>0)) return '<span class="badge" style="background:#777">SIN EDIFICACIÓN LUCRATIVA</span>';
+  if(!p.exig) return '<span class="badge" style="background:#777">NO EXIGIBLE (industrial)</span>';
+  return e.cumple?'<span class="badge" style="background:#1a7f37">CUMPLE ART. 36.6</span>':'<span class="badge" style="background:#c0392b">NO CUMPLE ART. 36.6</span>'; }
+function tablaEsc(p){ const filas=[['E0 existente',p.E0],['E1 + sobrevenidas',p.E1]]; if(p.E0A) filas.push(['E0 + SG adscritos',p.E0A]);
+  let h='<table><tr><th>Escenario</th><th>Edif. m²c</th>'+(p.resid?'<th>Viv.</th>':'')+'<th>RL/100</th><th>ZV/100</th>'+(p.resid?'<th>RL/viv</th>':'')+'<th>36.6</th><th>Margen m²c</th></tr>';
+  for(const [n,e] of filas) h+='<tr><td>'+n+'</td><td>'+f0(e.edif)+'</td>'+(p.resid?'<td>'+f0(e.viv)+'</td>':'')+'<td>'+f1(e.std_rl)+'</td><td>'+f1(e.std_zv)+'</td>'+(p.resid?'<td>'+f1(e.m2s_viv)+'</td>':'')+'<td>'+cumpleTxt(p,e)+'</td><td>'+f0(e.margen)+'</td></tr>';
+  return h+'</table>'; }
+function tablaAparc(p){ const a=p.aparc; return '<table><tr><th>Plazas en parcela privada</th><th>Nº</th></tr><tr><td>Exigibles por ordenanza</td><td>'+f0(a.ord)+'</td></tr><tr><td>Referencia art. 36.6.c (1,5/100 m²c)</td><td>'+f0(a.a366)+'</td></tr><tr><td>Estimadas bajo rasante (Catastro)</td><td>'+f0(a.sot)+'</td></tr><tr><td>Diferencia estimadas − exigibles</td><td class="'+(a.sot<a.ord?'ko':'')+'">'+f0(a.sot-a.ord)+'</td></tr></table>'; }
+function tablaMag(p){ return '<table><tr><th>Magnitud</th><th>Valor</th></tr>'+
+  '<tr><td>Superficie</td><td>'+f1(p.sup_ha)+' ha</td></tr><tr><td>Edificación residencial</td><td>'+f0(p.edif_res)+' m²c</td></tr>'+
+  '<tr><td>Edificación terciaria/comercial</td><td>'+f0(p.edif_ter)+' m²c</td></tr><tr><td>Edificación industrial</td><td>'+f0(p.edif_ind)+' m²c</td></tr>'+
+  '<tr><td>Viviendas Catastro'+(p.viv_plan?' / planeamiento':'')+'</td><td>'+f0(p.viv)+(p.viv_plan?' / '+f0(p.viv_plan):'')+'</td></tr>'+
+  '<tr><td>Zonas verdes locales</td><td>'+f0(p.zv)+' m²s</td></tr><tr><td>Equipamientos locales</td><td>'+f0(p.eq)+' m²s</td></tr>'+
+  '<tr><td>Servicios urbanos locales</td><td>'+f0(p.su)+' m²s</td></tr><tr><td>Redes generales en el ámbito</td><td>'+f0(p.rg)+' m²s</td></tr>'+
+  (p.rg_ads?'<tr><td>Redes generales adscritas al sector</td><td>'+f0(p.rg_ads)+' m²s</td></tr>':'')+'</table>'; }
+function cesionTxt(p){ const e=p.E0; if(!(e.edif>0)) return '<p class="nota">Sin edificación lucrativa: no procede calcular el estándar.</p>';
+  return '<table><tr><th>Deber de entrega (19 bis)</th><th>m²s</th></tr><tr><td>Por cada 100 m²c de incremento</td><td>'+f1(e.std_rl)+'</td></tr>'+
+  '<tr><td>Por vivienda adicional</td><td>'+(p.resid?f1(e.ces_viv):'No procede (sin viviendas)')+'</td></tr></table>'; }
+function fichaHTML(p,tipo){ let h='<p class="sub">'+(tipo==='sector'?'Sector · área homogénea de referencia':'Celda de 500 m tratada como área homogénea')+'</p>';
+  h+='<h2>'+esc((p.codigo?p.codigo+' ':'')+(tipo==='celda'?'Celda ':'')+p.nombre)+'</h2><p class="sub">Uso global: '+esc(p.uso)+(p.sectores?' · Sector(es): '+p.sectores.map(s=>esc(s[0]+' '+s[1])+' ('+s[2]+' %)').join(', '):'')+'</p>'+badge(p);
+  h+='<h3>Estándares</h3>'+tablaEsc(p)+'<h3>Diagnóstico</h3><div class="diag">'+esc(p.diag||'')+'</div>';
+  h+='<h3>Cesión unitaria</h3>'+cesionTxt(p)+'<h3>Aparcamiento</h3>'+tablaAparc(p)+'<h3>Magnitudes</h3>'+tablaMag(p);
+  if(p.sob&&p.sob.length) h+='<h3>Actuaciones sobrevenidas</h3><p>'+p.sob.map(esc).join('<br>')+'</p>';
+  return h+LEYENDA; }
+function seleccionar(l,p,tipo){ if(capaSel) map.removeLayer(capaSel); capaSel=L.geoJSON(l.toGeoJSON(),{interactive:false,style:{color:'#d10000',weight:3,fillOpacity:0}}).addTo(map);
+  $('#panel').innerHTML=fichaHTML(p,tipo); }
+
+// ---------- radio calculado en el navegador
+function indic(rl,zv,nr,viv){ const d={rl,zv,edif:nr,viv}; d.std_rl=nr>0?100*rl/nr:null; d.std_zv=nr>0?100*zv/nr:null; d.m2s_viv=viv>0?rl/viv:null;
+  d.cumple=(d.std_rl==null||d.std_rl>=P.rl-1e-6)&&(d.std_zv==null||d.std_zv>=P.zv-1e-6);
+  d.margen=Math.min(rl*100/P.rl, zv*100/P.zv)-nr; d.ces_viv=d.m2s_viv!=null?d.m2s_viv:P.viv0; return d; }
+function calcRadio(ll, r, ref){ const c=turf.circle([ll.lng,ll.lat], r/1000, {steps:64,units:'kilometers'}); const bb=turf.bbox(c);
+  let zv=0,eq=0,su=0; for(const f of E.redes.features){ if(f.properties.n!=='L') continue; const b=f.__bb||(f.__bb=turf.bbox(f));
+    if(b[2]<bb[0]||b[0]>bb[2]||b[3]<bb[1]||b[1]>bb[3]) continue; let i=null; try{ i=turf.intersect(c,f);}catch(e){}
+    if(!i) continue; const a=turf.area(i); if(f.properties.r==='Z') zv+=a; else if(f.properties.r==='E') eq+=a; else su+=a; }
+  const o={R:0,C:0,F:0,I:0,A:0,P:0}; let viv=0, sot=0; const lat0=ll.lat*Math.PI/180, kx=111320*Math.cos(lat0), ky=110540;
+  for(const p of E.edif){ const dx=(p[0]-ll.lng)*kx, dy=(p[1]-ll.lat)*ky; if(dx*dx+dy*dy>r*r) continue; o[p[4]]+=p[2]; viv+=p[3]; sot+=p[5]; }
+  const nr=o.R+o.C+o.F+o.A; const rl=zv+eq+su;
+  let s={edif:0,viv:0,supr:0,szv:0,nueva:0,zvn:0,reconv:0}, lista=[];
+  for(const f of E.sobrevenidas.features){ if(!turf.booleanIntersects(c,f)) continue; const q=f.properties; lista.push(q.nombre);
+    if(q.uso!=='Industrial') s.edif+=q.edif; s.viv+=q.viv; s.supr+=q.supr; if(q.supr_tipo==='Zona verde') s.szv+=q.supr; s.nueva+=q.nueva; s.zvn+=q.zv_nueva; s.reconv+=q.reconv||0; }
+  const ap=P.aparc, pl=(k,m,v)=>{const a=ap[k]||['m2c',100]; return a[0]==='viv'?v*a[1]:(a[1]?m/a[1]:0);};
+  const p={nombre:'Radio '+r+' m', codigo:'', uso:ref?ref.uso:'Residencial', exig:ref?ref.exig:true, resid:ref?ref.resid:true, sup_ha:Math.PI*r*r/1e4,
+    viv:viv, edif_res:o.R, edif_ter:o.C+o.F, edif_ind:o.I, zv, eq, su, rg:0, E0:indic(rl,zv,nr,viv),
+    E1:indic(rl-s.supr+s.nueva+s.zvn, zv-s.szv+s.zvn, nr+s.edif, viv+s.viv), sob:lista,
+    aparc:{ord:pl('Residencial',0,viv)+pl('Comercial',o.C,0)+pl('Oficinas/terciario',o.F,0)+pl('Industrial',o.I,0)+pl('Otro',o.A,0), a366:1.5*(nr+o.I)/100, sot:sot/30}};
+  p.diag = diagRadio(p); return {p, circ:c}; }
+function diagRadio(p){ const e=p.E0; if(!(e.edif>0)) return 'Sin edificación lucrativa no industrial en el círculo.';
+  let t = (p.exig? (e.cumple?'En el círculo se cumplen los mínimos del art. 36.6 ('+f1(e.std_rl)+' m²s de redes locales y '+f1(e.std_zv)+' de zonas verdes por cada 100 m²c); admite unos '+f0(e.margen)+' m²c adicionales sin reajustar redes.'
+    :'En el círculo no se alcanzan los mínimos del art. 36.6 ('+f1(e.std_rl)+' m²s de redes locales y '+f1(e.std_zv)+' de zonas verdes por cada 100 m²c).')
+    :'Uso industrial: el art. 36.6 no es exigible; valores informativos.');
+  if(!p.resid) t+=' Uso no residencial: no cabe incremento de densidad (art. 19 bis.2.d).';
+  if(p.sob.length) t+=' Con las actuaciones sobrevenidas ('+p.sob.join('; ')+'): '+f1(p.E1.std_rl)+' y '+f1(p.E1.std_zv)+' m²s/100 m²c.';
+  return t; }
+
+// ---------- parcela
+function cargarParcelas(){ return new Promise(res=>{ if(parcelas) return res(parcelas); const D=window.__VISOR_DATA; if(!D||!D.parcelas) return res(null);
+  try{ const bin=atob(D.parcelas); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+    new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text().then(t=>{ parcelas=JSON.parse(t);
+      for(const f of parcelas.features) f.__bb=turf.bbox(f); res(parcelas); }); }catch(e){ res(null); } }); }
+function enQue(fc, pt){ for(const f of fc.features){ try{ if(turf.booleanPointInPolygon(pt,f)) return f; }catch(e){} } return null; }
+function analizarPunto(ll){ cargarParcelas().then(pc=>{ const pt=turf.point([ll.lng,ll.lat]); let par=null;
+  if(pc){ for(const f of pc.features){ const b=f.__bb; if(ll.lng<b[0]||ll.lng>b[2]||ll.lat<b[1]||ll.lat>b[3]) continue; try{ if(turf.booleanPointInPolygon(pt,f)){par=f;break;} }catch(e){} } }
+  let centro = ll; if(par){ const c=turf.pointOnFeature(par).geometry.coordinates; centro=L.latLng(c[1],c[0]); }
+  const sec=enQue(E.sectores, turf.point([centro.lng,centro.lat])), cel=enQue(E.celdas, turf.point([centro.lng,centro.lat]));
+  const r=Math.max(50, +$('#radio').value||300); const ref=sec?sec.properties:(cel?cel.properties:null);
+  const R=calcRadio(centro, r, ref);
+  [capaSel,capaRadio,capaParc].forEach(l=>{ if(l) map.removeLayer(l); });
+  capaRadio=L.geoJSON(R.circ,{interactive:false,style:{color:'#d10000',weight:2,fillOpacity:0.04}}).addTo(map);
+  const grupo=[]; if(sec) grupo.push(L.geoJSON(sec,{interactive:false,style:{color:'#1e3cc8',weight:2.5,dashArray:'2 5',fillOpacity:0}}));
+  if(cel) grupo.push(L.geoJSON(cel,{interactive:false,style:{color:'#ff8c00',weight:2.5,dashArray:'7 4',fillOpacity:0}}));
+  if(par) grupo.push(L.geoJSON(par,{interactive:false,style:{color:'#000',weight:3,fillColor:'#000',fillOpacity:.15}}));
+  capaParc=L.layerGroup(grupo).addTo(map); capaSel=null;
+  ultimo={par, sec:sec&&sec.properties, cel:cel&&cel.properties, rad:R.p, r};
+  pintarParcela(); }); }
+function pintarParcela(){ const u=ultimo; if(!u) return; const pp=u.par?u.par.properties:{};
+  const refs=[['Sector'+(u.sec?' '+(u.sec.codigo||''):''),u.sec],['Celda'+(u.cel?' '+u.cel.nombre:''),u.cel],['Radio '+u.r+' m',u.rad]];
+  let h='<p class="sub">Parcela analizada</p><h2>'+esc(pp.direccion||pp.refcat||'Punto marcado')+'</h2><p class="sub">'+(pp.refcat?'Ref. catastral '+esc(pp.refcat)+' · ':'')+(pp.ordenanza?'Ordenanza '+esc(pp.ordenanza):'')+'</p>';
+  const filas=[['Edificación lucrativa (m²c)',p=>f0(p.E0.edif)],['Viviendas',p=>f0(p.E0.viv)],['Redes locales (m²s)',p=>f0(p.E0.rl)],['RL / 100 m²c',p=>f1(p.E0.std_rl)],
+    ['ZV / 100 m²c',p=>f1(p.E0.std_zv)],['RL por vivienda',p=>p.resid?f1(p.E0.m2s_viv):'—'],['Cumple 36.6 (E0)',p=>cumpleTxt(p,p.E0)],['Cumple 36.6 (E1)',p=>cumpleTxt(p,p.E1)],
+    ['Margen sin reajuste (m²c)',p=>f0(p.E0.margen)],['Cesión por 100 m²c (m²s)',p=>f1(p.E0.std_rl)],['Cesión por vivienda (m²s)',p=>p.resid?f1(p.E0.ces_viv):'No procede'],
+    ['Plazas exigibles (ordenanza)',p=>f0(p.aparc.ord)],['Plazas estimadas bajo rasante',p=>f0(p.aparc.sot)]];
+  h+='<h3>Sector, cuadrícula y radio</h3><table><tr><th>Indicador</th>'+refs.map(r=>'<th>'+esc(r[0])+'</th>').join('')+'</tr>';
+  for(const [n,fn] of filas) h+='<tr><td>'+n+'</td>'+refs.map(r=>'<td>'+(r[1]?fn(r[1]):'—')+'</td>').join('')+'</tr>';
+  h+='</table><p class="nota">Vinculante para el deber de entrega (art. 19 bis): el estándar del sector (área homogénea). La celda y el radio son referencias complementarias del entorno.</p>';
+  // incremento
+  const sobre = E.sobrevenidas.features.find(f=>pp.refcat && f.properties.refcat && f.properties.refcat.slice(0,14)===String(pp.refcat).slice(0,14));
+  const q=sobre?sobre.properties:null;
+  h+='<h3>Deber de entrega para un incremento</h3>'+(q?'<p class="nota">La parcela es una actuación sobrevenida: <b>'+esc(q.nombre)+'</b> ('+esc(q.instrumento)+').</p>':'')+
+    '<div class="inc"><label>Incremento m²c<input id="im" type="number" min="0" value="'+(q?Math.round(q.edif):0)+'"></label><label>Incremento viviendas<input id="iv" type="number" min="0" value="'+(q?q.viv:0)+'"></label>'+
+    '<label>Uso<select id="iu"><option>Residencial</option><option>Terciario</option><option>Industrial</option></select></label><label><br><button id="ic" type="button">Calcular</button></label></div><div id="ires"></div>';
+  h+='<h3>Diagnóstico</h3>'; for(const [n,p] of refs) if(p) h+='<p><b>'+esc(n)+'.</b></p><div class="diag">'+esc(p.diag)+'</div>';
+  $('#panel').innerHTML=h+LEYENDA;
+  $('#ic').onclick=calcInc; calcInc(); }
+function calcInc(){ const u=ultimo; const m=+$('#im').value||0, v=+$('#iv').value||0, uso=$('#iu').value;
+  if(!m&&!v){ $('#ires').innerHTML=''; return; }
+  const refs=[['Sector',u.sec],['Celda',u.cel],['Radio',u.rad]];
+  const ces=p=>{ if(!p) return null; const e=p.E0, std=(e.std_rl||0)/100, sv=e.m2s_viv||P.viv0; let pe=0,pv=0;
+    if(p.resid){ pe=m*std; pv=v*(e.m2s_viv||P.viv0); } else if(uso==='Residencial'){ pv=v*sv; pe=m*std; } else pe=m*std;
+    const nr=e.edif+m+(v&&!m?v*P.viv:0); const t=indic(e.rl,e.zv,nr,e.viv+v);
+    const pz = uso==='Residencial' ? (v||m/P.viv) : m/((P.aparc[uso==='Industrial'?'Industrial':'Comercial']||['m2c',100])[1]);
+    return {pe,pv,tot:pe+pv,exento:p.exig&&t.cumple,pz,p366:m?1.5*m/100:1.5*v}; };
+  const cs=refs.map(r=>ces(r[1]));
+  let h='<table><tr><th>Concepto</th>'+refs.map(r=>'<th>'+r[0]+'</th>').join('')+'</tr>';
+  for(const [n,k] of [['Por edificabilidad (m²s)','pe'],['Por viviendas (m²s)','pv'],['Total (m²s)','tot'],['Plazas por ordenanza','pz'],['Plazas art. 36.6.c','p366']])
+    h+='<tr><td>'+n+'</td>'+cs.map(c=>'<td>'+(c?f0(c[k]):'—')+'</td>').join('')+'</tr>';
+  h+='<tr><td>Exento (19 bis.1)</td>'+cs.map(c=>'<td>'+(c?(c.exento?'<span class="ok">Sí</span>':'<span class="ko">No</span>'):'—')+'</td>').join('')+'</tr></table>';
+  if(u.sec && !u.sec.resid) h+='<p class="nota">Sector no residencial: no cabe aumento de densidad; un nuevo uso no residencial requiere estudio específico de necesidades (art. 19 bis.2.d.1º).</p>';
+  $('#ires').innerHTML=h; }
+
+// ---------- modos
+function ponerModo(m){ modo=m; document.querySelectorAll('.modo').forEach(b=>b.setAttribute('aria-selected', b.dataset.m===m));
+  [capaSel,capaRadio,capaParc].forEach(l=>{ if(l) map.removeLayer(l); }); capaSel=capaRadio=capaParc=null;
+  map.removeLayer(capaSect); map.removeLayer(capaCel);
+  $('#lradio').hidden = m!=='parcela';
+  if(m==='sectores'){ capaSect.addTo(map); capaSect.setStyle(estilo); $('#panel').innerHTML='<h2>Sectores</h2><p>Cada sector se analiza como <b>área homogénea</b>, la referencia legal del art. 19 bis de la Ley 9/2001. Pulse un sector para ver su ficha.</p>'+resumenSectores()+LEYENDA; }
+  if(m==='celdas'){ capaCel.addTo(map); capaCel.setStyle(estilo); capaSect.addTo(map); capaSect.setStyle(()=>({color:'#111',weight:2,fillOpacity:0,interactive:false})); capaCel.bringToFront();
+    $('#panel').innerHTML='<h2>Cuadrícula de 500 m</h2><p>Para afinar dentro de cada sector, cada celda de 500 × 500 m se trata también como un área homogénea. Pulse una celda para ver su ficha.</p>'+LEYENDA; }
+  if(m==='parcela'){ capaSect.addTo(map); capaSect.setStyle(()=>({color:'#1e3cc8',weight:1.5,fillOpacity:0})); capaCel.addTo(map); capaCel.setStyle(()=>({color:'#ff8c00',weight:.6,fillOpacity:0}));
+    $('#panel').innerHTML='<h2>Análisis de una parcela</h2><p>Pulse una parcela en el mapa: se sitúa respecto de su <b>sector</b>, su <b>celda de 500 m</b> y un <b>radio</b> alrededor (calculado al momento), y se obtiene el deber de entrega para un incremento.</p>'+LEYENDA; }
+  pintarLeyenda(); }
+function resumenSectores(){ let h='<table><tr><th>Sector</th><th>RL/100</th><th>ZV/100</th><th>36.6</th></tr>';
+  for(const f of E.sectores.features){ const p=f.properties; h+='<tr><td>'+esc((p.codigo||'')+' '+p.nombre)+'</td><td>'+f1(p.E0.std_rl)+'</td><td>'+f1(p.E0.std_zv)+'</td><td>'+cumpleTxt(p,p.E0)+'</td></tr>'; }
+  return h+'</table>'; }
+document.querySelectorAll('.modo').forEach(b=>b.onclick=()=>ponerModo(b.dataset.m));
+$('#ind').onchange=$('#escen').onchange=()=>{ if(modo!=='parcela'){ (modo==='sectores'?capaSect:capaCel).setStyle(estilo);} pintarLeyenda(); };
+$('#radio').onchange=()=>{ if(ultimo&&ultimo.par){ const c=turf.pointOnFeature(ultimo.par).geometry.coordinates; analizarPunto(L.latLng(c[1],c[0])); } };
+map.on('click', ev=>{ if(modo==='parcela') analizarPunto(ev.latlng); });
+capaRedes.addTo(map); capaSob.addTo(map);
+map.fitBounds(capaSect.getBounds());
+ponerModo('sectores');
+$('#cargando').hidden=true;
+})();
+</script></body></html>

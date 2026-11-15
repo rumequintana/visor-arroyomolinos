@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnóstico urbano · Arroyomolinos</title>
+<style>
+:root{--paper:#f3f5f7;--surface:#fff;--ink:#14283d;--muted:#5b6b7b;--line:#d5dde5;--brand:#1f4e79;--brand-ink:#fff;
+--ok:#1a7f37;--ko:#c0392b;--ne:#777;--warn-bg:#fff1f0;--warn:#a10f0f;--f-sans:"Public Sans","Segoe UI",system-ui,sans-serif}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font:14px/1.45 var(--f-sans);display:flex;flex-direction:column;overflow:hidden}
+.barra{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 16px;background:var(--brand);color:var(--brand-ink)}
+.marca{display:flex;flex-direction:column;min-width:0}.marca h1{margin:0;font-size:17px;font-weight:700}
+.marca p{margin:0;font-size:12px;opacity:.85}
+.aviso{margin:0;padding:6px 10px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-size:12px;font-weight:600}
+
+main{flex:1;overflow:auto;padding:18px 22px 40px}
+.intro{max-width:980px;color:var(--muted);margin:0 0 10px}
+.filtro{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
+.filtro button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.filtro button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+h2{font-size:15px;color:var(--brand);margin:22px 0 10px;letter-spacing:.02em}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.plano{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
+.plano img{width:100%;aspect-ratio:1.414;object-fit:cover;background:#eee;display:block}
+.plano span{padding:8px 10px;font-size:13px;font-weight:600}
+.plano:hover{box-shadow:0 2px 10px rgba(0,0,0,.18)}
+#visor{position:fixed;inset:0;z-index:50;background:rgba(10,20,30,.92);display:flex;flex-direction:column}
+#visor .cab{display:flex;align-items:center;gap:12px;padding:10px 16px;color:#fff}
+#visor .cab b{flex:1}
+#visor button,#visor a{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer;text-decoration:none}
+#visor .lienzo{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center}
+#visor img{max-width:100%;height:auto;cursor:zoom-in}#visor img.zoom{max-width:none;cursor:zoom-out}
+</style></head><body>
+<header class="barra"><div class="marca"><h1>Visor urbanístico de Arroyomolinos</h1>
+<p>Ayuntamiento de Arroyomolinos · Unidad de Planeamiento y Ejecución Urbanística</p></div><!--NAV-ESTANDARES--><style>.secciones{display:flex;gap:4px;flex-wrap:wrap}.secciones a{color:inherit;opacity:.85;text-decoration:none;font-weight:600;font-size:13.5px;padding:6px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.35)}.secciones a:hover{opacity:1;background:rgba(255,255,255,.12)}.secciones a.activa{opacity:1;background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.75)}</style><nav class="secciones" aria-label="Secciones"><a href="index.html">Visor urbanístico</a><a href="diagnostico.html" class="activa" aria-current="page">Diagnóstico urbano</a><a href="estandares.html">Estándares</a></nav><!--/NAV-ESTANDARES--></header>
+<main>
+<p class="intro">Planos del <b>Atlas de diagnóstico urbano</b>: población, vivienda, accesibilidad a equipamientos, calificación y ocupación del suelo, zonas residenciales e industriales, capacidad residencial, medio físico, riesgos y afecciones sectoriales. Pulse un plano para verlo a tamaño completo.</p>
+<p class="aviso">La información carece de valor legal y no reemplaza el contenido de los expedientes administrativos aprobados definitivamente.</p>
+<div class="filtro" id="filtro"></div>
+<div id="contenido"></div>
+</main>
+<div id="visor" hidden><div class="cab"><button id="ant">◀</button><b id="vtit"></b><a id="vdesc" download>Descargar</a><button id="sig">▶</button><button id="cerrar">✕</button></div>
+<div class="lienzo"><img id="vimg" alt=""></div></div>
+<script src="data/diagnostico.js?v=202611151828"></script>
+<script>
+(function(){
+const D=window.__DIAGNOSTICO||{planos:[]}, $=s=>document.querySelector(s);
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const caps=[...new Set(D.planos.map(p=>p.capitulo))]; let filtro=null, idx=0, lista=D.planos;
+function pintar(){ let h=''; lista=D.planos.filter(p=>!filtro||p.capitulo===filtro);
+  for(const c of caps){ if(filtro&&c!==filtro) continue; const ps=D.planos.map((p,i)=>[p,i]).filter(x=>x[0].capitulo===c); if(!ps.length) continue;
+    h+='<h2>'+esc(c)+'</h2><div class="rejilla">'+ps.map(([p,i])=>'<div class="plano" data-i="'+i+'"><img loading="lazy" src="'+p.mini+'" alt=""><span>'+esc(p.titulo)+'</span></div>').join('')+'</div>'; }
+  $('#contenido').innerHTML=h||'<p>No hay planos publicados.</p>';
+  document.querySelectorAll('.plano').forEach(e=>e.onclick=()=>abrir(+e.dataset.i)); }
+function botones(){ let h='<button aria-pressed="'+(!filtro)+'" data-c="">Todos</button>'; for(const c of caps) h+='<button aria-pressed="'+(filtro===c)+'" data-c="'+esc(c)+'">'+esc(c)+'</button>';
+  $('#filtro').innerHTML=h; document.querySelectorAll('#filtro button').forEach(b=>b.onclick=()=>{ filtro=b.dataset.c||null; botones(); pintar(); }); }
+function abrir(i){ idx=i; const p=D.planos[i]; $('#vtit').textContent=p.capitulo+' · '+p.titulo; $('#vimg').src=p.img; $('#vimg').className=''; $('#vdesc').href=p.img; $('#visor').hidden=false; }
+$('#cerrar').onclick=()=>$('#visor').hidden=true;
+$('#ant').onclick=()=>abrir((idx-1+D.planos.length)%D.planos.length);
+$('#sig').onclick=()=>abrir((idx+1)%D.planos.length);
+$('#vimg').onclick=e=>e.target.classList.toggle('zoom');
+document.addEventListener('keydown',e=>{ if($('#visor').hidden) return; if(e.key==='Escape') $('#visor').hidden=true; if(e.key==='ArrowRight') $('#sig').click(); if(e.key==='ArrowLeft') $('#ant').click(); });
+botones(); pintar();
+})();
+</script></body></html>
