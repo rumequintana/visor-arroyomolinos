@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cálculos · Arroyomolinos</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--paper:#f3f5f7;--surface:#fff;--ink:#14283d;--muted:#5b6b7b;--line:#d5dde5;--brand:#1f4e79;--brand-ink:#fff;
+--ok:#1a7f37;--ko:#c0392b;--warn-bg:#fff1f0;--warn:#a10f0f;--f-sans:"Public Sans","Segoe UI",system-ui,sans-serif}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font:14px/1.45 var(--f-sans);display:flex;flex-direction:column;overflow:hidden}
+.barra{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 16px;background:var(--brand);color:var(--brand-ink)}
+.marca{display:flex;flex-direction:column;min-width:0}.marca h1{margin:0;font-size:17px;font-weight:700}
+.marca p{margin:0;font-size:12px;opacity:.85}
+.cuerpo{flex:1;display:grid;grid-template-columns:470px 1fr;min-height:0}
+aside{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.modos{display:flex;border-bottom:1px solid var(--line)}
+.modo{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:11px 4px;cursor:pointer;border-bottom:3px solid transparent}
+.modo[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand)}
+.panel{flex:1;overflow:auto;padding:14px 16px 24px}
+#mapa{position:relative;min-height:0;display:flex;flex-direction:column}
+#map{flex:1;min-height:0;background:#e9ece8}
+h2{margin:2px 0 4px;font-size:20px;line-height:1.2}h3{margin:16px 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand)}
+.sub{margin:0;color:var(--muted);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
+th{background:var(--brand);color:#fff;font-weight:600;padding:3px 4px;text-align:right}th:first-child{text-align:left}
+td{padding:3px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child{text-align:left}
+td.izq{text-align:left}
+.nota{font-size:12px;color:var(--muted)}
+.campo{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;align-items:center;font-size:13px;margin:10px 0}
+.campo input,.campo select{font:inherit;padding:3px 6px;width:100%;box-sizing:border-box}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.b{font:inherit;font-size:13px;font-weight:600;padding:6px 11px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+.b:hover{border-color:var(--brand)}
+.b.pri{background:var(--brand);color:#fff;border-color:var(--brand)}
+.b:disabled{opacity:.45;cursor:default}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.kpi{background:#eef3f8;border-radius:6px;padding:6px 9px}.kpi b{display:block;font-size:17px;font-variant-numeric:tabular-nums}.kpi span{font-size:11.5px;color:var(--muted)}
+.estado{font-size:12.5px;color:var(--brand);min-height:18px;margin:4px 0;font-weight:600}
+.tabla-scroll{max-height:260px;overflow:auto}
+details{margin-top:16px;border-top:1px solid var(--line);padding-top:8px}summary{cursor:pointer;font-weight:700;color:var(--brand);font-size:13px}
+details p{margin:5px 0;font-size:12.5px}
+.aviso-pie{margin-top:14px;padding:6px 9px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-size:11.5px;font-weight:600}
+.cargando{position:absolute;z-index:999;inset:0;display:grid;place-items:center;background:rgba(243,245,247,.85);font-weight:600;color:var(--muted)}
+.leaflet-container{font:inherit}.leaflet-container.dibujando{cursor:crosshair}
+.tt-med{background:rgba(20,40,61,.88);color:#fff;border:0;font-weight:600;font-size:12px;box-shadow:none}
+.tt-med:before{display:none}
+#graf{height:40%;min-height:190px;background:#fff;border-top:2px solid var(--brand);display:flex;flex-direction:column}
+#graf .gcab{display:flex;align-items:center;gap:10px;padding:4px 10px;font-size:12.5px}
+#graf .gcab b{color:var(--brand)}#graf .gcab span{color:var(--muted);flex:1}
+#graf .gcab button{border:0;background:none;font-size:18px;line-height:1;cursor:pointer;color:var(--muted)}
+#gcanvas{flex:1;min-height:0;width:100%;display:block;cursor:crosshair}
+@media (max-width:820px){.cuerpo{grid-template-columns:1fr;grid-template-rows:55vh 1fr}aside{order:2}#mapa{order:1}}
+</style></head><body>
+<header class="barra"><div class="marca"><h1>Visor urbanístico de Arroyomolinos</h1>
+<p>Ayuntamiento de Arroyomolinos · Unidad de Planeamiento y Ejecución Urbanística</p></div><!--NAV-ESTANDARES--><style>.secciones{display:flex;gap:4px;flex-wrap:wrap}.secciones a{color:inherit;opacity:.85;text-decoration:none;font-weight:600;font-size:13.5px;padding:6px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.35)}.secciones a:hover{opacity:1;background:rgba(255,255,255,.12)}.secciones a.activa{opacity:1;background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.75)}</style><nav class="secciones" aria-label="Secciones"><a href="index.html">Visor urbanístico</a><a href="diagnostico.html">Diagnóstico urbano</a><a href="estandares.html">Estándares</a><a href="calculos.html" class="activa" aria-current="page">Cálculos</a></nav><!--/NAV-ESTANDARES--></header>
+<div class="cuerpo">
+<aside>
+  <div class="modos" role="tablist">
+    <button class="modo" data-m="perfil" aria-selected="true">Secciones</button>
+    <button class="modo" data-m="distancia" aria-selected="false">Distancia</button>
+    <button class="modo" data-m="area" aria-selected="false">Área</button>
+    <button class="modo" data-m="punto" aria-selected="false">Punto</button>
+    <button class="modo" data-m="ruta" aria-selected="false">Ruta</button>
+  </div>
+  <div class="panel" id="panel"></div>
+</aside>
+<div id="mapa"><div id="map"></div>
+  <div id="graf" hidden><div class="gcab"><b id="g-tit">Perfil</b><span id="g-info">Pasa el ratón por el gráfico para ver el punto en el mapa</span><button id="g-cerrar" title="Ocultar gráfico">×</button></div><canvas id="gcanvas"></canvas></div>
+  <div class="cargando" id="cargando">Cargando parcelario y modelo del terreno…</div></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="data/datos.js?v=202611160652"></script>
+<script src="data/mdt.js?v=202611160652"></script>
+<script>
+/* Visor urbanístico de Arroyomolinos — pestaña «Cálculos»: secciones y perfiles, distancias, áreas, coordenadas y rutas */
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = t => String(t==null?'':t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nf = (x,d=2) => (x==null||!isFinite(x)) ? '—' : Number(x).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d,useGrouping:'always'});
+const sg = (x,d=2) => (x==null||!isFinite(x)) ? '—' : (x>0?'+':'')+nf(x,d);
+const AVISO = 'La información carece de valor legal y no reemplaza a un levantamiento topográfico.';
+const NOTA_MDT = 'Terreno: MDT05 del IGN (CNIG), malla de 5 m con cotas enteras, suavizado para eliminar los escalones de 1 m. Vale para pendientes y desniveles generales; la cota decimétrica en un punto concreto es orientativa. Para un expediente que exija precisión, usar MDT02/LiDAR o levantamiento topográfico.';
+const UTM = '+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+const aU = ll => proj4('EPSG:4326', UTM, [ll.lng, ll.lat]);
+const aLL = (x,y) => { const p = proj4(UTM, 'EPSG:4326', [x,y]); return L.latLng(p[1], p[0]); };
+const hoy = () => new Date().toLocaleDateString('es-ES');
+
+// ================================================================ datos
+function b64(s){ const bin = atob(s); const u = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+async function gunzip(u){ return new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()); }
+let MDT=null, PARC=null, TERM=null;
+async function cargarMDT(){ const M = window.__MDT; if (!M) return null;
+  const u = await gunzip(b64(M.datos)); const dv = new DataView(u.buffer, u.byteOffset, u.byteLength);
+  const z = new Float32Array(M.nx*M.ny);
+  for (let r=0;r<M.ny;r++){ let acc=M.base; const o=r*M.nx; for (let c=0;c<M.nx;c++){ acc += dv.getInt16((o+c)*2, true); z[o+c] = acc/10; } }
+  return Object.assign({}, M, {z, datos:null}); }
+function bboxCoords(cs, b){ if (typeof cs[0]==='number'){ if(cs[0]<b[0])b[0]=cs[0]; if(cs[1]<b[1])b[1]=cs[1]; if(cs[0]>b[2])b[2]=cs[0]; if(cs[1]>b[3])b[3]=cs[1]; } else for (const c of cs) bboxCoords(c,b); return b; }
+async function cargarParcelas(){ const D = window.__VISOR_DATA; if (!D||!D.parcelas) return null;
+  const fc = JSON.parse(new TextDecoder().decode(await gunzip(b64(D.parcelas))));
+  fc.features = fc.features.filter(f => f.geometry && f.geometry.coordinates && f.geometry.coordinates.length);
+  fc.features.forEach((f,i) => { f.__bb = bboxCoords(f.geometry.coordinates,[1e9,1e9,-1e9,-1e9]); f.__k = f.properties.refcat || ('#'+(f.properties._i!=null?f.properties._i:i)); });
+  return fc; }
+async function cargarTermino(){ const D = window.__VISOR_DATA; if (!D||!D.capas) return null;
+  try { const c = JSON.parse(new TextDecoder().decode(await gunzip(b64(D.capas)))); return c.termino || null; } catch(e){ return null; } }
+function utmDe(f){ if (!f.__u){ const g=f.geometry; const polys = g.type==='Polygon' ? [g.coordinates] : g.coordinates;
+    f.__u = polys.map(p => p.map(r => r.map(c => proj4('EPSG:4326', UTM, c))));
+    f.__ub = bboxCoords(f.__u, [1e12,1e12,-1e12,-1e12]); } return f; }
+function candidatas(bb, m=3){ if (!PARC) return [];
+  const cs = [[bb[0]-m,bb[1]-m],[bb[2]+m,bb[1]-m],[bb[0]-m,bb[3]+m],[bb[2]+m,bb[3]+m]].map(c => proj4(UTM,'EPSG:4326',c));
+  const lb = [Math.min(...cs.map(c=>c[0])), Math.min(...cs.map(c=>c[1])), Math.max(...cs.map(c=>c[0])), Math.max(...cs.map(c=>c[1]))];
+  return PARC.features.filter(f => !(f.__bb[2]<lb[0]||f.__bb[0]>lb[2]||f.__bb[3]<lb[1]||f.__bb[1]>lb[3])).map(utmDe); }
+function pipPolys(x,y,polys){ let ins=false; for (const p of polys) for (const r of p) for (let i=0,j=r.length-1;i<r.length;j=i++){
+  const xi=r[i][0], yi=r[i][1], xj=r[j][0], yj=r[j][1]; if (((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) ins=!ins; } return ins; }
+function parcelaEn(x,y,cands){ for (const f of cands){ const b=f.__ub; if (x<b[0]||x>b[2]||y<b[1]||y>b[3]) continue; if (pipPolys(x,y,f.__u)) return f; } return null; }
+function zAt(x,y){ const M=MDT; if (!M) return null; const c=(x-M.x0)/M.rx-0.5, r=(M.y0-y)/M.ry-0.5; const c0=Math.floor(c), r0=Math.floor(r);
+  if (c0<0||r0<0||c0+1>=M.nx||r0+1>=M.ny) return null; const dc=c-c0, dr=r-r0, n=M.nx, z=M.z, i=r0*n+c0;
+  return z[i]*(1-dc)*(1-dr) + z[i+1]*dc*(1-dr) + z[i+n]*(1-dc)*dr + z[i+n+1]*dc*dr; }
+const fParc = k => PARC ? PARC.features.find(f => f.__k===k) : null;
+const etiqParc = k => { const f=fParc(k); if(!f) return k||'—'; const p=f.properties; return (p.direccion?p.direccion+' · ':'')+(p.refcat||k); };
+
+// ================================================================ geometría (UTM)
+function acumulada(P){ const C=[0]; for (let i=1;i<P.length;i++) C.push(C[i-1]+Math.hypot(P[i][0]-P[i-1][0], P[i][1]-P[i-1][1])); return C; }
+function interp(P,C,d){ if (d<=0) return P[0].slice(); const n=P.length-1; if (d>=C[n]) return P[n].slice();
+  let lo=0, hi=n; while (hi-lo>1){ const m=(lo+hi)>>1; if (C[m]<=d) lo=m; else hi=m; }
+  const s=C[hi]-C[lo]||1, t=(d-C[lo])/s; return [P[lo][0]+(P[hi][0]-P[lo][0])*t, P[lo][1]+(P[hi][1]-P[lo][1])*t]; }
+function localizar(P,C,x,y){ let best=1e18, dd=0; for (let i=0;i<P.length-1;i++){ const ax=P[i][0], ay=P[i][1], bx=P[i+1][0]-ax, by=P[i+1][1]-ay; const l2=bx*bx+by*by||1;
+  let t=((x-ax)*bx+(y-ay)*by)/l2; t=Math.max(0,Math.min(1,t)); const e=Math.hypot(ax+bx*t-x, ay+by*t-y); if (e<best){ best=e; dd=C[i]+t*Math.sqrt(l2); } } return dd; }
+function cruce(p,q,r,s){ const d1x=q[0]-p[0], d1y=q[1]-p[1], d2x=s[0]-r[0], d2y=s[1]-r[1]; const den=d1x*d2y-d1y*d2x; if (Math.abs(den)<1e-12) return null;
+  const t=((r[0]-p[0])*d2y-(r[1]-p[1])*d2x)/den, u=((r[0]-p[0])*d1y-(r[1]-p[1])*d1x)/den; return (t>=-1e-9&&t<=1+1e-9&&u>=-1e-9&&u<=1+1e-9) ? t : null; }
+function cortesConPolys(P,C,polys){ const out=[]; for (let i=0;i<P.length-1;i++){ const sl=C[i+1]-C[i];
+  const sb=[Math.min(P[i][0],P[i+1][0]),Math.min(P[i][1],P[i+1][1]),Math.max(P[i][0],P[i+1][0]),Math.max(P[i][1],P[i+1][1])];
+  for (const pol of polys) for (const r of pol) for (let j=0;j<r.length-1;j++){ const a=r[j], b=r[j+1];
+    if (Math.max(a[0],b[0])<sb[0]||Math.min(a[0],b[0])>sb[2]||Math.max(a[1],b[1])<sb[1]||Math.min(a[1],b[1])>sb[3]) continue;
+    const t=cruce(P[i],P[i+1],a,b); if (t!=null) out.push(C[i]+t*sl); } } return out; }
+const bboxU = P => bboxCoords(P,[1e12,1e12,-1e12,-1e12]);
+function areaAnillo(r){ let a=0; for (let i=0,j=r.length-1;i<r.length;j=i++) a += (r[j][0]+r[i][0])*(r[j][1]-r[i][1]); return Math.abs(a)/2; }
+function muestreo(polys, maxN=20000){ const bb=bboxCoords(polys,[1e12,1e12,-1e12,-1e12]); const A=(bb[2]-bb[0])*(bb[3]-bb[1]);
+  const s=Math.max(1, Math.sqrt(A/maxN)); const X=[], Y=[], Z=[];
+  for (let x=bb[0]+s/2; x<bb[2]; x+=s) for (let y=bb[1]+s/2; y<bb[3]; y+=s) if (pipPolys(x,y,polys)){ const z=zAt(x,y); if (z!=null){ X.push(x); Y.push(y); Z.push(z); } }
+  return {X,Y,Z,paso:s}; }
+function centroInterior(m){ if (!m.X.length) return null; const mx=m.X.reduce((a,b)=>a+b,0)/m.X.length, my=m.Y.reduce((a,b)=>a+b,0)/m.Y.length;
+  let bi=0, bd=1e18; m.X.forEach((x,i)=>{ const d=Math.hypot(x-mx, m.Y[i]-my); if (d<bd){ bd=d; bi=i; } }); return [m.X[bi], m.Y[bi]]; }
+function planoLSQ(X,Y,Z){ const n=X.length; if (n<3) return null; const mx=X.reduce((a,b)=>a+b,0)/n, my=Y.reduce((a,b)=>a+b,0)/n, mz=Z.reduce((a,b)=>a+b,0)/n;
+  let sxx=0,syy=0,sxy=0,sxz=0,syz=0; for (let i=0;i<n;i++){ const x=X[i]-mx, y=Y[i]-my, z=Z[i]-mz; sxx+=x*x; syy+=y*y; sxy+=x*y; sxz+=x*z; syz+=y*z; }
+  const det=sxx*syy-sxy*sxy; if (Math.abs(det)<1e-9) return null; const a=(sxz*syy-syz*sxy)/det, b=(syz*sxx-sxz*sxy)/det;
+  let e=0; for (let i=0;i<n;i++){ const r=mz+a*(X[i]-mx)+b*(Y[i]-my)-Z[i]; e+=r*r; }
+  return {a,b, z:(x,y)=>mz+a*(x-mx)+b*(y-my), pend:Math.hypot(a,b)*100, azi:((Math.atan2(-a,-b)*180/Math.PI)+360)%360, rmse:Math.sqrt(e/n)}; }
+function rectaLSQ(D,Z){ const n=D.length; if (n<2) return null; const md=D.reduce((a,b)=>a+b,0)/n, mz=Z.reduce((a,b)=>a+b,0)/n; let sdd=0, sdz=0;
+  for (let i=0;i<n;i++){ sdd+=(D[i]-md)**2; sdz+=(D[i]-md)*(Z[i]-mz); } const k=sdd? sdz/sdd : 0; return {k, f:d=>mz+k*(d-md)}; }
+const rumbo = (dx,dy) => ((Math.atan2(dx,dy)*180/Math.PI)+360)%360;
+const ROSA = a => ['N','NE','E','SE','S','SO','O','NO'][Math.round(a/45)%8];
+
+// ================================================================ cálculo de la sección / perfil
+function autoPaso(L){ return L<=150?0.5 : L<=600?1 : L<=2000?2 : L<=5000?5 : 10; }
+function calcularPerfil(P, o){
+  const C=acumulada(P), L=C[C.length-1]; if (L<1) throw new Error('La línea es demasiado corta.');
+  const paso = o.paso==='auto' ? autoPaso(L) : +o.paso;
+  const cands = candidatas(bboxU(P), 5);
+  const D=[], X=[], Y=[], Z=[], R=[];
+  for (let d=0; d<L+1e-6; d+=paso){ D.push(d); } if (L-D[D.length-1]>1e-3) D.push(L);
+  for (const d of D){ const p=interp(P,C,d); X.push(p[0]); Y.push(p[1]); const z=zAt(p[0],p[1]); Z.push(z==null?NaN:z); const f=parcelaEn(p[0],p[1],cands); R.push(f?f.__k:null); }
+  if (Z.every(z=>isNaN(z))) throw new Error('La línea queda fuera del modelo del terreno (término municipal).');
+  const keyAt = d => { const p=interp(P,C,Math.max(0,Math.min(L,d))); const f=parcelaEn(p[0],p[1],cands); return f?f.__k:null; };
+  const zl = d => { const p=interp(P,C,d); return zAt(p[0],p[1]); };
+  // cortes con los lindes (planos verticales de las propiedades)
+  const bb=bboxU(P); let ds=[];
+  for (const f of cands){ const b=f.__ub; if (b[2]<bb[0]||b[0]>bb[2]||b[3]<bb[1]||b[1]>bb[3]) continue; ds = ds.concat(cortesConPolys(P,C,f.__u)); }
+  ds.sort((a,b)=>a-b); const cortes=[];
+  for (const d of ds){ if (cortes.length && d-cortes[cortes.length-1].d<0.10) continue; const ant=keyAt(d-0.25), post=keyAt(d+0.25); if (ant===post) continue;
+    const p=interp(P,C,d); cortes.push({d, x:p[0], y:p[1], ant, post, zt:zAt(p[0],p[1])}); }
+  const distintas=[...new Set(R.filter(Boolean))];
+  // parcelas principales: se descartan las que la línea solo roza en sus extremos (p. ej. el margen tras el linde exterior)
+  const tramo={}; R.forEach(k=>{ if (k) tramo[k]=(tramo[k]||0)+paso; });
+  let princ=distintas.filter(k=>tramo[k]>=Math.max(5,0.08*L)); if (princ.length<2) princ=distintas;
+  let tipo = o.tipo;
+  if (o.refA && o.refB) tipo='seccion';
+  if (tipo==='auto') tipo = (princ.length>=2 && L<=400) ? 'seccion' : 'perfil';
+  let aviso='';
+  if (tipo==='seccion' && distintas.length<2 && !(o.refA&&o.refB)){ tipo='perfil'; aviso='La línea no atraviesa dos parcelas: se calcula como perfil longitudinal. Alárgala para que cruce las dos parcelas.'; }
+  const res = {nombre:o.nombre, tipo, L, paso, P, C, D, X, Y, Z, R, cortes, aviso, metodo:o.metodo, rv:{}, fecha:hoy()};
+  // estadísticas generales
+  const zv=Z.filter(z=>!isNaN(z)); res.zmin=Math.min(...zv); res.zmax=Math.max(...zv);
+  res.z0=Z.find(z=>!isNaN(z)); res.z1=[...Z].reverse().find(z=>!isNaN(z));
+  let sub=0, baj=0, l3=0; for (let i=1;i<D.length;i++){ if (isNaN(Z[i])||isNaN(Z[i-1])) { l3+=D[i]-D[i-1]; continue; } const dz=Z[i]-Z[i-1]; if (dz>0) sub+=dz; else baj-=dz; l3+=Math.hypot(D[i]-D[i-1],dz); }
+  res.subida=sub; res.bajada=baj; res.L3=l3;
+  const w=Math.max(10, 4*paso); let pmax=0, dpm=0; for (let i=0,j=0;i<D.length;i++){ while (j<D.length && D[j]-D[i]<w) j++; if (j>=D.length) break; if (isNaN(Z[i])||isNaN(Z[j])) continue; const s=Math.abs(Z[j]-Z[i])/(D[j]-D[i]); if (s>pmax){ pmax=s; dpm=(D[i]+D[j])/2; } }
+  res.pmax=pmax*100; res.dpmax=dpm; res.wpmax=w;
+  if (tipo==='seccion'){
+    const A = o.refA || princ[0]; const B = o.refB || [...princ].reverse().find(k=>k!==A);
+    res.A=A; res.B=B;
+    const dA=cortes.filter(c=>c.ant===A||c.post===A).map(c=>c.d), dB=cortes.filter(c=>c.ant===B||c.post===B).map(c=>c.d);
+    const dAe = dA.length?Math.min(...dA):0, dAf = dA.length?Math.max(...dA):0, dBf = dB.length?Math.min(...dB):L, dBe = dB.length?Math.max(...dB):L;
+    Object.assign(res,{dAe,dAf,dBf,dBe});
+    for (const c of cortes){ const inA=(c.ant===A||c.post===A), inB=(c.ant===B||c.post===B);
+      c.rol = inA&&inB ? 'linde común A-B' : Math.abs(c.d-dAe)<1e-6 ? 'linde exterior A' : Math.abs(c.d-dAf)<1e-6 ? 'frente A' : Math.abs(c.d-dBf)<1e-6 ? 'frente B' : Math.abs(c.d-dBe)<1e-6 ? 'linde exterior B' : (c.ant&&c.post?'medianera':'alineación'); }
+    const zAe=zl(dAe), zBe=zl(dBe); res.zAe=zAe; res.zBe=zBe;
+    res.rv.extremos = d => zAe + (zBe-zAe)*(d-dAe)/((dBe-dAe)||1);
+    const fA=fParc(A), fB=fParc(B); const mA=fA?muestreo(utmDe(fA).__u):null, mB=fB?muestreo(utmDe(fB).__u):null;
+    if (mA&&mB&&mA.Z.length&&mB.Z.length){
+      const zmA=mA.Z.reduce((a,b)=>a+b,0)/mA.Z.length, zmB=mB.Z.reduce((a,b)=>a+b,0)/mB.Z.length;
+      const cA=centroInterior(mA), cB=centroInterior(mB); const dcA=localizar(P,C,cA[0],cA[1]), dcB=localizar(P,C,cB[0],cB[1]);
+      Object.assign(res,{zmA,zmB,dcA,dcB}); if (Math.abs(dcB-dcA)>0.5) res.rv.medias = d => zmA + (zmB-zmA)*(d-dcA)/(dcB-dcA);
+      res.plano = planoLSQ(mA.X.concat(mB.X), mA.Y.concat(mB.Y), mA.Z.concat(mB.Z));
+      res.supA = fA ? fA.__u.reduce((s,p)=>s+areaAnillo(p[0])-p.slice(1).reduce((t,r)=>t+areaAnillo(r),0),0) : null;
+      res.supB = fB ? fB.__u.reduce((s,p)=>s+areaAnillo(p[0])-p.slice(1).reduce((t,r)=>t+areaAnillo(r),0),0) : null;
+    }
+    const iD=[], iZ=[]; D.forEach((d,i)=>{ if ((R[i]===A||R[i]===B) && !isNaN(Z[i])){ iD.push(d); iZ.push(Z[i]); } });
+    const aj=rectaLSQ(iD,iZ); if (aj) res.rv.ajuste = aj.f;
+    res.d0=dAe; res.d1=dBe;
+  } else {
+    res.A=null; res.B=null;
+    for (const c of cortes) c.rol = (c.ant&&c.post) ? 'medianera' : 'alineación';
+    const z0=res.z0, z1=res.z1; res.rv.extremos = d => z0 + (z1-z0)*d/L;
+    const iD=[], iZ=[]; D.forEach((d,i)=>{ if (!isNaN(Z[i])){ iD.push(d); iZ.push(Z[i]); } }); const aj=rectaLSQ(iD,iZ); if (aj) res.rv.ajuste=aj.f;
+    res.d0=0; res.d1=L;
+  }
+  if (!res.rv[res.metodo]) res.metodo='extremos';
+  const pend = f => (f(res.d1)-f(res.d0))/((res.d1-res.d0)||1)*100;
+  res.pend = {}; for (const k in res.rv) res.pend[k]=pend(res.rv[k]);
+  const rv=res.rv[res.metodo]; for (const c of cortes){ c.rvz = (c.d>=res.d0-1e-6 && c.d<=res.d1+1e-6) ? rv(c.d) : null; }
+  res.ent = [...new Set(R.filter(Boolean))].length;
+  return res; }
+
+// ================================================================ gráfico del perfil
+function pasoBonito(r,n){ const raw=r/n; const p=Math.pow(10,Math.floor(Math.log10(raw))); const m=raw/p; return (m<1.5?1:m<3?2:m<7?5:10)*p; }
+const COL_RV = {extremos:'#dc2626', medias:'#2563eb', ajuste:'#16a34a'};
+const NOM_RV = {extremos:'Rasante virtual · lindes exteriores', medias:'Rasante · cotas medias de parcela', ajuste:'Rasante · ajuste mín. cuadrados'};
+function dibujarGrafico(cv, res, o){
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height, s=o.s||1;
+  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+  const F = (px,b) => (b?'bold ':'')+(px*s)+'px "Segoe UI",Arial,sans-serif';
+  const ml=58*s, mr=16*s, mt=(o.titulo?30:14)*s, mb=34*s, pw=W-ml-mr, ph=H-mt-mb, L=res.L;
+  const zs=res.Z.filter(z=>!isNaN(z)); for (const k in res.rv){ zs.push(res.rv[k](res.d0)); zs.push(res.rv[k](res.d1)); }
+  const zmin=Math.min(...zs), zmax=Math.max(...zs), rango=Math.max(zmax-zmin, 0.5);
+  const etiquetas = res.tipo==='seccion' ? res.cortes.filter(c=>c.d>=res.d0-1e-6&&c.d<=res.d1+1e-6).length<=10 : res.cortes.length<=12;
+  const extra = etiquetas&&res.cortes.length ? (res.tipo==='seccion'?62:24)*s : 8*s;   // hueco superior para las etiquetas
+  const phu = Math.max(ph-extra, ph*0.45);
+  let yr;
+  if (o.exag==='auto') yr=Math.max(rango*1.25, 2);
+  else { yr = phu*L/(pw*(+o.exag)); if (yr<rango*1.1) yr=rango*1.25; }
+  const E=(phu/yr)/(pw/L); res.__E=E;
+  const ylo = zmin - (yr-rango)*0.35, yhi = ylo + yr*(ph/phu);
+  const X=d=>ml+d/L*pw, Yz=z=>mt+(yhi-z)/(yhi-ylo)*ph;
+  res.__tf={ml,pw,L,mt,ph,W,H};
+  // rejilla
+  ctx.font=F(10.5); ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1*s; ctx.fillStyle='#555';
+  const sx=pasoBonito(L, Math.max(4,Math.round(pw/(90*s)))); ctx.textAlign='center'; ctx.textBaseline='top';
+  for (let d=0; d<=L+1e-6; d+=sx){ ctx.beginPath(); ctx.moveTo(X(d),mt); ctx.lineTo(X(d),mt+ph); ctx.stroke(); ctx.fillText(nf(d, sx<1?1:0), X(d), mt+ph+4*s); }
+  const sy=pasoBonito(yhi-ylo, Math.max(3,Math.round(ph/(38*s)))); ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (let z=Math.ceil(ylo/sy)*sy; z<=yhi; z+=sy){ ctx.beginPath(); ctx.moveTo(ml,Yz(z)); ctx.lineTo(ml+pw,Yz(z)); ctx.stroke(); ctx.fillText(nf(z, sy<1?1:0), ml-5*s, Yz(z)); }
+  ctx.save(); ctx.beginPath(); ctx.rect(ml,mt,pw,ph); ctx.clip();
+  // bandas de las parcelas A y B
+  if (res.tipo==='seccion'){ ctx.fillStyle='rgba(37,99,235,.07)'; ctx.fillRect(X(res.dAe),mt,X(res.dAf)-X(res.dAe),ph); ctx.fillStyle='rgba(234,88,12,.08)'; ctx.fillRect(X(res.dBf),mt,X(res.dBe)-X(res.dBf),ph); }
+  // terreno
+  ctx.beginPath(); let ini=null, ult=null;
+  res.D.forEach((d,i)=>{ const z=res.Z[i]; if (isNaN(z)) return; if (ini==null){ ini=d; ctx.moveTo(X(d),Yz(z)); } else ctx.lineTo(X(d),Yz(z)); ult=d; });
+  ctx.lineTo(X(ult),mt+ph); ctx.lineTo(X(ini),mt+ph); ctx.closePath(); ctx.fillStyle='#e8dcc6'; ctx.fill();
+  ctx.beginPath(); let m=false; res.D.forEach((d,i)=>{ const z=res.Z[i]; if (isNaN(z)){ m=false; return; } if (!m){ ctx.moveTo(X(d),Yz(z)); m=true; } else ctx.lineTo(X(d),Yz(z)); });
+  ctx.strokeStyle='#6b4f2a'; ctx.lineWidth=1.8*s; ctx.stroke();
+  // rasantes
+  const dash={extremos:[], medias:[7*s,4*s], ajuste:[2*s,3*s]};
+  for (const k of ['ajuste','medias','extremos']){ const f=res.rv[k]; if (!f) continue; ctx.setLineDash(dash[k]); ctx.strokeStyle=COL_RV[k]; ctx.lineWidth=(k===res.metodo?2.2:1.2)*s;
+    ctx.beginPath(); ctx.moveTo(X(res.d0),Yz(f(res.d0))); ctx.lineTo(X(res.d1),Yz(f(res.d1))); ctx.stroke(); }
+  ctx.setLineDash([]);
+  // cortes con lindes
+  const vis = res.cortes.filter(c=>res.tipo!=='seccion' || (c.d>=res.d0-1e-6&&c.d<=res.d1+1e-6));
+  const niv=[]; const bw=(res.tipo==='seccion'?84:58)*s;
+  for (const c of vis){ const x=X(c.d); ctx.setLineDash([3*s,3*s]); ctx.strokeStyle='#333'; ctx.lineWidth=0.8*s; ctx.beginPath(); ctx.moveTo(x, etiquetas ? mt+ph : Yz(c.zt||ylo)+10*s);
+    if (etiquetas){ let l=0; while (niv[l]!=null && x-niv[l]<bw) l++; niv[l]=x; c.__nv=l; ctx.lineTo(x, mt+4*s+ (res.tipo==='seccion'?50:16)*s + Math.min(l,2)*6*s); } else ctx.lineTo(x,Yz(c.zt||ylo)-6*s);
+    ctx.stroke(); ctx.setLineDash([]);
+    if (c.zt!=null){ ctx.fillStyle='#6b4f2a'; ctx.fillRect(x-3*s,Yz(c.zt)-3*s,6*s,6*s); }
+    if (c.rvz!=null && res.tipo==='seccion'){ ctx.fillStyle=COL_RV[res.metodo]; ctx.beginPath(); ctx.arc(x,Yz(c.rvz),3.4*s,0,7); ctx.fill(); } }
+  ctx.restore();
+  if (etiquetas){ ctx.textAlign='center'; ctx.textBaseline='top';
+    for (const c of vis){ const x=Math.max(ml+bw/2, Math.min(ml+pw-bw/2, X(c.d))); const l=Math.min(c.__nv||0,2);
+      const ls = res.tipo==='seccion' ? [c.rol.toUpperCase(), 'TN '+nf(c.zt), 'RV '+nf(c.rvz), 'Dz '+sg(c.zt!=null&&c.rvz!=null?c.zt-c.rvz:null)] : ['TN '+nf(c.zt,1)];
+      const y0 = mt+3*s+l*6*s, lh=11.5*s, h=ls.length*lh+4*s;
+      ctx.fillStyle='rgba(255,255,255,.93)'; ctx.strokeStyle='#999'; ctx.lineWidth=0.6*s; ctx.fillRect(x-bw/2+2*s,y0,bw-4*s,h); ctx.strokeRect(x-bw/2+2*s,y0,bw-4*s,h);
+      ls.forEach((t,i)=>{ ctx.font=F(i===0&&res.tipo==='seccion'?8.4:9.2, i===0); ctx.fillStyle='#111'; ctx.fillText(t, x, y0+2*s+i*lh); }); } }
+  // marco, ejes y títulos
+  ctx.strokeStyle='#555'; ctx.lineWidth=1*s; ctx.strokeRect(ml,mt,pw,ph);
+  ctx.font=F(10.5); ctx.fillStyle='#333'; ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('Distancia sobre la línea (m)', ml+pw/2, H-2*s);
+  ctx.save(); ctx.translate(13*s, mt+ph/2); ctx.rotate(-Math.PI/2); ctx.textBaseline='middle'; ctx.fillText('Cota (m)', 0, 0); ctx.restore();
+  // cotas inicio/fin
+  ctx.font=F(9.5,true); ctx.fillStyle='#6b4f2a'; ctx.textBaseline='bottom';
+  if (res.z0!=null){ ctx.textAlign='left'; ctx.fillText(nf(res.z0), ml+3*s, Yz(res.z0)-4*s); }
+  if (res.z1!=null){ ctx.textAlign='right'; ctx.fillText(nf(res.z1), ml+pw-3*s, Yz(res.z1)-4*s); }
+  if (res.tipo==='seccion'){ ctx.font=F(11,true); ctx.textBaseline='bottom'; ctx.textAlign='center';
+    ctx.fillStyle='#1d4ed8'; ctx.fillText('A', X((res.dAe+res.dAf)/2), mt+ph-4*s); ctx.fillStyle='#c2410c'; ctx.fillText('B', X((res.dBf+res.dBe)/2), mt+ph-4*s); }
+  // leyenda
+  const leg=[['#6b4f2a','Terreno (MDT05)',[]]]; for (const k of ['extremos','medias','ajuste']) if (res.rv[k]) leg.push([COL_RV[k], NOM_RV[k]+' ('+nf(res.pend[k])+' %)', dash[k], k===res.metodo]);
+  ctx.font=F(9.5); let lw=0; for (const l of leg) lw=Math.max(lw, ctx.measureText(l[1]).width); const lx=ml+pw-lw-34*s, ly=mt+ph-(leg.length*13+8)*s-14*s;
+  ctx.fillStyle='rgba(255,255,255,.9)'; ctx.strokeStyle='#bbb'; ctx.lineWidth=0.6*s; ctx.fillRect(lx-6*s,ly,lw+38*s,(leg.length*13+6)*s); ctx.strokeRect(lx-6*s,ly,lw+38*s,(leg.length*13+6)*s);
+  leg.forEach((l,i)=>{ const y=ly+(9+i*13)*s; ctx.setLineDash(l[2]); ctx.strokeStyle=l[0]; ctx.lineWidth=(l[3]?2.2:1.4)*s; ctx.beginPath(); ctx.moveTo(lx,y); ctx.lineTo(lx+22*s,y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#222'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.font=F(9.5,l[3]); ctx.fillText(l[1], lx+27*s, y); });
+  if (o.titulo){ ctx.font=F(12.5,true); ctx.fillStyle='#14283d'; ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.fillText((res.tipo==='seccion'?'SECCIÓN ':'PERFIL ')+res.nombre+' · Perfil del terreno y rasante virtual  (E.V. ×'+nf(E,1)+')', ml, 8*s); }
+  return E; }
+
+// ================================================================ planos de situación (canvas → imagen para el PDF)
+function cargarImagen(url, ms=9000){ return new Promise(res=>{ const im=new Image(); im.crossOrigin='anonymous'; let ok=false;
+  const t=setTimeout(()=>{ if(!ok) res(null); }, ms); im.onload=()=>{ ok=true; clearTimeout(t); res(im); }; im.onerror=()=>{ clearTimeout(t); res(null); }; im.src=url; }); }
+async function planoSituacion(g, Wmm, Hmm, opt={}){
+  // g: {linea:[[x,y]..]} | {poligono:[[x,y]..]} | {puntos:[[x,y]..]}; opt: {A,B,cortes,orto}
+  const k=7, W=Math.round(Wmm*k), H=Math.round(Hmm*k);
+  const pts=(g.linea||g.poligono||[]).concat(g.puntos||[]); const bb=bboxU(pts);
+  let w=bb[2]-bb[0], h=bb[3]-bb[1]; const pad=Math.max(w,h)*0.18+25; let cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  w+=2*pad; h+=2*pad; if (w/h > W/H) h=w*H/W; else w=h*W/H; const x0=cx-w/2, y1=cy+h/2, esc_=W/w;
+  const tx=x=>(x-x0)*esc_, ty=y=>(y1-y)*esc_;
+  const dibuja = async conOrto => { const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const c=cv.getContext('2d');
+    c.fillStyle='#f4f4f1'; c.fillRect(0,0,W,H); let orto=false;
+    if (conOrto){ const url='https://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=OI.OrthoimageCoverage&STYLES=&CRS=EPSG:25830&BBOX='+
+        [x0, y1-h, x0+w, y1].map(v=>v.toFixed(2)).join(',')+'&WIDTH='+W+'&HEIGHT='+H+'&FORMAT=image/jpeg';
+      const im=await cargarImagen(url); if (im){ c.drawImage(im,0,0,W,H); orto=true; } }
+    // parcelas
+    const cands=candidatas([x0,y1-h,x0+w,y1],0);
+    for (const f of cands){ const sel = f.__k===opt.A ? 'A' : f.__k===opt.B ? 'B' : null;
+      c.beginPath(); for (const p of f.__u) for (const r of p){ r.forEach((q,i)=>{ i?c.lineTo(tx(q[0]),ty(q[1])):c.moveTo(tx(q[0]),ty(q[1])); }); c.closePath(); }
+      if (sel){ c.fillStyle = sel==='A'?'rgba(37,99,235,.33)':'rgba(234,88,12,.33)'; c.fill('evenodd'); }
+      c.strokeStyle = orto?'rgba(255,255,255,.9)':'#8d8d8d'; c.lineWidth = sel?2.2:1; c.stroke(); }
+    if (opt.A||opt.B) for (const [kk,col,t] of [[opt.A,'#1d4ed8','A'],[opt.B,'#c2410c','B']]){ const f=fParc(kk); if(!f) continue; const m=centroInterior(muestreo(f.__u,1500)); if(!m) continue;
+      c.font='bold 30px Arial'; c.textAlign='center'; c.textBaseline='middle'; c.lineWidth=5; c.strokeStyle='#fff'; c.strokeText(t,tx(m[0]),ty(m[1])); c.fillStyle=col; c.fillText(t,tx(m[0]),ty(m[1])); }
+    // geometría medida
+    const P=g.linea||g.poligono;
+    if (P){ c.beginPath(); P.forEach((q,i)=>i?c.lineTo(tx(q[0]),ty(q[1])):c.moveTo(tx(q[0]),ty(q[1]))); if (g.poligono){ c.closePath(); c.fillStyle='rgba(220,38,38,.18)'; c.fill(); }
+      c.strokeStyle='#fff'; c.lineWidth=6; c.stroke(); c.strokeStyle='#dc2626'; c.lineWidth=3; c.stroke();
+      P.forEach(q=>{ c.beginPath(); c.arc(tx(q[0]),ty(q[1]),4.5,0,7); c.fillStyle='#fff'; c.fill(); c.strokeStyle='#dc2626'; c.lineWidth=2; c.stroke(); });
+      if (g.linea){ c.font='bold 22px Arial'; c.lineWidth=4; c.strokeStyle='#fff'; c.fillStyle='#111'; c.textAlign='left'; c.textBaseline='bottom';
+        const a=P[0], b=P[P.length-1]; c.strokeText('0',tx(a[0])+7,ty(a[1])-5); c.fillText('0',tx(a[0])+7,ty(a[1])-5);
+        const t=nf(acumulada(P).pop(),1)+' m'; c.strokeText(t,tx(b[0])+7,ty(b[1])-5); c.fillText(t,tx(b[0])+7,ty(b[1])-5); } }
+    for (const q of (g.puntos||[])){ c.beginPath(); c.arc(tx(q[0]),ty(q[1]),8,0,7); c.fillStyle='#dc2626'; c.fill(); c.strokeStyle='#fff'; c.lineWidth=3; c.stroke(); }
+    for (const q of (opt.cortes||[])){ c.beginPath(); c.arc(tx(q.x),ty(q.y),4,0,7); c.fillStyle='#111'; c.fill(); }
+    // norte y escala
+    c.fillStyle='rgba(255,255,255,.85)'; c.fillRect(8,8,48,64); c.fillStyle='#111'; c.beginPath(); c.moveTo(32,16); c.lineTo(20,52); c.lineTo(32,44); c.lineTo(44,52); c.closePath(); c.fill();
+    c.font='bold 18px Arial'; c.textAlign='center'; c.textBaseline='bottom'; c.fillText('N',32,70);
+    const sl=pasoBonito(w*0.25,1), sp=sl*esc_, sx0=W-sp-26; c.fillStyle='rgba(255,255,255,.85)'; c.fillRect(sx0-14,H-44,sp+32,36);
+    c.fillStyle='#111'; c.fillRect(sx0,H-22,sp/2,7); c.strokeStyle='#111'; c.lineWidth=1.5; c.strokeRect(sx0,H-22,sp,7);
+    c.font='15px Arial'; c.textAlign='center'; c.textBaseline='bottom'; c.fillText('0',sx0,H-25); c.fillText(nf(sl,0)+' m',sx0+sp,H-25);
+    return {cv, orto}; };
+  let r = await dibuja(opt.orto!==false);
+  try { return {url:r.cv.toDataURL('image/jpeg',0.85), orto:r.orto}; }
+  catch(e){ r = await dibuja(false); return {url:r.cv.toDataURL('image/jpeg',0.85), orto:false}; } }
+function situacionTermino(x,y,mm){ const k=6, W=Math.round(mm*k); const cv=document.createElement('canvas'); cv.width=W; cv.height=W; const c=cv.getContext('2d');
+  c.fillStyle='#fff'; c.fillRect(0,0,W,W); if (!TERMU) return cv.toDataURL('image/png');
+  const bb=bboxCoords(TERMU,[1e12,1e12,-1e12,-1e12]); const s=(W-12)/Math.max(bb[2]-bb[0],bb[3]-bb[1]); const ox=(W-(bb[2]-bb[0])*s)/2, oy=(W-(bb[3]-bb[1])*s)/2;
+  const tx=v=>ox+(v-bb[0])*s, ty=v=>W-oy-(v-bb[1])*s;
+  c.beginPath(); for (const p of TERMU) for (const r of p){ r.forEach((q,i)=>i?c.lineTo(tx(q[0]),ty(q[1])):c.moveTo(tx(q[0]),ty(q[1]))); c.closePath(); }
+  c.fillStyle='#e9eef3'; c.fill(); c.strokeStyle='#1f4e79'; c.lineWidth=2; c.stroke();
+  c.beginPath(); c.arc(tx(x),ty(y),7,0,7); c.fillStyle='#dc2626'; c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke(); return cv.toDataURL('image/png'); }
+let TERMU=null;
+
+// ================================================================ PDF
+function nuevoPDF(){ const {jsPDF}=window.jspdf; const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const fx=t=>String(t).replace(/²/g,'2').replace(/³/g,'3').replace(/≈/g,'~').replace(/Δ/g,'Dif. ').replace(/→/g,'->').replace(/σ/g,'s');
+  const _t=doc.text.bind(doc), _s=doc.splitTextToSize.bind(doc), _w=doc.getTextWidth.bind(doc);
+  doc.text=(t,...a)=>_t(Array.isArray(t)?t.map(fx):fx(t),...a); doc.splitTextToSize=(t,...a)=>_s(fx(t),...a); doc.getTextWidth=t=>_w(fx(t));
+  return doc; }
+const AZ=[31,78,121];
+function cabecera(doc, titulo, sub){ doc.setFillColor(...AZ); doc.rect(0,0,297,15,'F'); doc.setTextColor(255); doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.text(titulo,8,7.6);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.8); doc.text('Ayuntamiento de Arroyomolinos · Unidad de Planeamiento y Ejecución Urbanística · Visor urbanístico, pestaña Cálculos',8,12.4);
+  doc.text('Emitido el '+hoy(),289,12.4,{align:'right'}); if (sub){ doc.setTextColor(20); doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.text(doc.splitTextToSize(sub,281)[0],8,20.5); } }
+function pie(doc, fuentes){ doc.setFillColor(255,243,243); doc.setDrawColor(176,0,0); doc.setLineWidth(0.35); doc.rect(8,196.5,281,7,'FD');
+  doc.setTextColor(153,0,0); doc.setFont('helvetica','bold'); doc.setFontSize(7.4); doc.text('AVISO: '+AVISO,148.5,201.1,{align:'center'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(5.8); doc.setTextColor(110); doc.text(doc.splitTextToSize(fuentes,281),8,206.6); }
+function bloque(doc,x,y,w,titulo,filas,ancho1){ doc.setFont('helvetica','bold'); doc.setFontSize(7.8); doc.setTextColor(...AZ); doc.text(titulo,x,y); doc.setDrawColor(...AZ); doc.setLineWidth(0.3); doc.line(x,y+1,x+w,y+1);
+  let yy=y+4.6; doc.setFontSize(6.9); for (const [a,b,neg] of filas){ doc.setFont('helvetica','normal'); doc.setTextColor(105); doc.text(a,x,yy);
+    doc.setTextColor(20); doc.setFont('helvetica',neg?'bold':'normal'); const t=doc.splitTextToSize(String(b),w-ancho1); doc.text(t,x+ancho1,yy); yy+=3.35*Math.max(1,t.length); } return yy; }
+function tablaPDF(doc,x,y,w,titulo,cab,filas,anchos,maxF,izq=1){ doc.setFont('helvetica','bold'); doc.setFontSize(7.8); doc.setTextColor(...AZ); doc.text(titulo,x,y);
+  let yy=y+2; doc.setFillColor(...AZ); doc.rect(x,yy,w,4,'F'); doc.setTextColor(255); doc.setFontSize(6.4); let xx=x;
+  cab.forEach((c,i)=>{ doc.text(c, i===izq?xx+1:xx+anchos[i]-1, yy+2.9, {align:i===izq?'left':'right'}); xx+=anchos[i]; }); yy+=4;
+  doc.setFont('helvetica','normal'); doc.setTextColor(20); const vis=filas.slice(0,maxF);
+  for (const f of vis){ xx=x; f.forEach((c,i)=>{ doc.text(String(c), i===izq?xx+1:xx+anchos[i]-1, yy+2.8, {align:i===izq?'left':'right'}); xx+=anchos[i]; }); yy+=3.6; doc.setDrawColor(215); doc.setLineWidth(0.15); doc.line(x,yy,x+w,yy); }
+  if (filas.length>maxF){ doc.setTextColor(110); doc.text('… y '+(filas.length-maxF)+' más (ver CSV)', x+1, yy+3); yy+=4; } return yy; }
+async function guardar(blob, nombre, st){
+  const dl = window.claude && window.claude.use ? await window.claude.use('downloads').catch(()=>null) : null;
+  if (dl){ try { await dl.save({filename:nombre, data:blob}); st.textContent='Guardado: '+nombre; } catch(e){ st.textContent = e&&e.code==='declined' ? 'Descarga cancelada.' : 'No se pudo guardar en esta vista.'; } return; }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre; document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); st.textContent='Descargado: '+nombre; }
+const limpio = t => String(t||'').replace(/[^\wÁÉÍÓÚÑáéíóúñ.-]+/g,'_');
+const FUENTES = 'Fuentes: MDT05 del IGN (CNIG) suavizado · parcelario municipal (Ayto. de Arroyomolinos) · ortofoto PNOA (IGN). Coordenadas ETRS89 UTM huso 30 (EPSG:25830); distancias y superficies en proyección UTM. ';
+
+async function pdfPerfil(res){
+  const st=$('#p-est'); st.textContent='Generando el PDF…'; const btn=$('#p-pdf'); if (btn) btn.disabled=true;
+  try {
+    const doc=nuevoPDF(); const sec=res.tipo==='seccion';
+    cabecera(doc, (sec?'SECCIÓN ENTRE PARCELAS ':'PERFIL DEL TERRENO ')+res.nombre,
+      sec ? 'A: '+etiqParc(res.A)+'   ·   B: '+etiqParc(res.B) : 'Perfil longitudinal de '+nf(res.L,1)+' m · '+res.ent+' parcela(s) atravesada(s)');
+    // gráfico
+    const k=8, cv=document.createElement('canvas'); cv.width=281*k; cv.height=92*k;
+    dibujarGrafico(cv,res,{exag:$('#p-exag').value, s:k/4.1, titulo:true});
+    doc.addImage(cv.toDataURL('image/png'),'PNG',8,23.5,281,92); doc.setDrawColor(90); doc.setLineWidth(0.3); doc.rect(8,23.5,281,92);
+    // plano de situación
+    const pl=await planoSituacion({linea:res.P},92,74,{A:res.A,B:res.B,cortes:res.cortes,orto:$('#p-orto')?$('#p-orto').checked:true});
+    doc.addImage(pl.url,'JPEG',8,119,92,74); doc.rect(8,119,92,74);
+    const mid=interp(res.P,res.C,res.L/2); doc.addImage(situacionTermino(mid[0],mid[1],20),'PNG',79,120,20,20); doc.setDrawColor(150); doc.rect(79,120,20,20);
+    doc.setFontSize(5.8); doc.setTextColor(60); doc.text('Plano de situación'+(pl.orto?' sobre ortofoto PNOA':'')+' · línea de sección en rojo, cortes con lindes en negro',9,191.8);
+    // resumen
+    let filas;
+    if (sec) filas=[
+      ['Longitud de la línea', nf(res.L)+' m'], ['Distancia lindes ext. A-B', nf(res.dBe-res.dAe)+' m'],
+      ['Cota linde exterior A', nf(res.zAe)+' m'], ['Cota linde exterior B', nf(res.zBe)+' m'],
+      ['Desnivel lindes exteriores', sg(res.zBe-res.zAe)+' m', true],
+      ['Rasante virtual (extremos)', nf(res.pend.extremos)+' %', res.metodo==='extremos'],
+      ['Cotas medias A / B', res.zmA!=null? nf(res.zmA)+' / '+nf(res.zmB)+' m' : '—'], ['Desnivel entre medias', res.zmA!=null? sg(res.zmB-res.zmA)+' m':'—'],
+      ['Rasante cotas medias', res.pend.medias!=null? nf(res.pend.medias)+' %':'—', res.metodo==='medias'],
+      ['Rasante ajuste mín. cuadrados', res.pend.ajuste!=null? nf(res.pend.ajuste)+' %':'—', res.metodo==='ajuste'],
+      ['Plano 3D ajustado a A+B', res.plano? nf(res.plano.pend)+' % hacia '+nf(res.plano.azi,0)+'° ('+ROSA(res.plano.azi)+'), RMSE '+nf(res.plano.rmse)+' m':'—'],
+      ['Superficie A / B (parcelario)', res.supA!=null? nf(res.supA,0)+' / '+nf(res.supB,0)+' m²':'—'],
+      ['Rasante principal', NOM_RV[res.metodo]], ['Muestreo · exag. vertical', 'cada '+nf(res.paso,1)+' m · ×'+nf(res.__E,1)]];
+    else filas=[
+      ['Longitud planimétrica', nf(res.L)+' m', true], ['Longitud sobre el terreno', nf(res.L3)+' m'],
+      ['Cota inicio / fin', nf(res.z0)+' / '+nf(res.z1)+' m'], ['Desnivel inicio-fin', sg(res.z1-res.z0)+' m', true],
+      ['Pendiente media', sg(res.pend.extremos)+' %', true], ['Pendiente ajuste mín. cuadrados', res.pend.ajuste!=null? sg(res.pend.ajuste)+' %':'—'],
+      ['Pendiente máxima', nf(res.pmax)+' % (tramo de '+nf(res.wpmax,0)+' m hacia d = '+nf(res.dpmax,0)+' m)'],
+      ['Cota mínima / máxima', nf(res.zmin)+' / '+nf(res.zmax)+' m'], ['Subida / bajada acumuladas', nf(res.subida,1)+' / '+nf(res.bajada,1)+' m'],
+      ['Parcelas atravesadas', String(res.ent)], ['Cortes con lindes', String(res.cortes.length)], ['Muestreo · exag. vertical', 'cada '+nf(res.paso,1)+' m · ×'+nf(res.__E,1)]];
+    bloque(doc,104,122,88,'RESULTADOS',filas,40);
+    // cortes con lindes
+    const fc=res.cortes.map(c=>[nf(c.d), c.rol, nf(c.zt), c.rvz!=null?nf(c.rvz):'—', (c.zt!=null&&c.rvz!=null)?sg(c.zt-c.rvz):'—']);
+    if (fc.length) tablaPDF(doc,196,122,93,'CORTES CON LOS LINDES (planos verticales)',['d (m)','Linde','Terreno','Rasante','Dif. TN-RV'],fc,[13,34,15,15,16],13);
+    else { doc.setFont('helvetica','bold'); doc.setFontSize(7.8); doc.setTextColor(...AZ); doc.text('CORTES CON LOS LINDES',196,122); doc.setFont('helvetica','normal'); doc.setFontSize(6.9); doc.setTextColor(60); doc.text('La línea no corta ningún linde del parcelario.',196,127); }
+    doc.setFontSize(5.8); doc.setTextColor(100); doc.text(doc.splitTextToSize('Cotas en m. TN: terreno natural (MDT05, cota decimétrica orientativa). RV: rasante principal. Dif.: TN - RV (positivo: terreno por encima de la rasante).',93),196,187.5);
+    pie(doc, FUENTES+'Rasante virtual: recta entre las cotas del terreno en los lindes exteriores de A y B (o entre los extremos de la línea en un perfil longitudinal).');
+    await guardar(doc.output('blob'), (sec?'seccion_':'perfil_')+limpio(res.nombre)+'.pdf', st);
+  } catch(e){ console.error(e); st.textContent='No se pudo generar el PDF: '+e.message; }
+  finally { if (btn) btn.disabled=false; } }
+
+function csvPerfil(res){ const r=res.rv[res.metodo]; const L=['d;x_utm;y_utm;z_terreno;z_rasante;dz;refcat'];
+  res.D.forEach((d,i)=>{ const z=res.Z[i], zr=(d>=res.d0-1e-6&&d<=res.d1+1e-6)?r(d):null; L.push([d.toFixed(2),res.X[i].toFixed(2),res.Y[i].toFixed(2),isNaN(z)?'':z.toFixed(2),zr==null?'':zr.toFixed(2),(zr==null||isNaN(z))?'':(z-zr).toFixed(2),(res.R[i]&&res.R[i][0]!=='#')?res.R[i]:''].join(';').replace(/\./g,',')); });
+  L.push(''); L.push('CORTES CON LINDES'); L.push('d;rol;refcat_antes;refcat_despues;x_utm;y_utm;z_terreno;z_rasante;dz');
+  res.cortes.forEach(c=>L.push([c.d.toFixed(2),c.rol,c.ant||'',c.post||'',c.x.toFixed(2),c.y.toFixed(2),c.zt==null?'':c.zt.toFixed(2),c.rvz==null?'':c.rvz.toFixed(2),(c.zt==null||c.rvz==null)?'':(c.zt-c.rvz).toFixed(2)].map(v=>/^-?[\d.]+$/.test(v)?v.replace('.',','):v).join(';')));
+  return new Blob(['﻿'+L.join('\r\n')],{type:'text/csv;charset=utf-8'}); }
+
+// ================================================================ mapa y dibujo
+const map = L.map('map',{zoomControl:true, preferCanvas:true}).setView([40.27,-3.92],14);
+const pnoa = L.tileLayer.wms('https://www.ign.es/wms-inspire/pnoa-ma',{layers:'OI.OrthoimageCoverage',format:'image/jpeg',attribution:'PNOA © IGN',maxZoom:21});
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19});
+pnoa.addTo(map);
+const capaParc = L.layerGroup(); let capaParcHecha=false;
+L.control.layers({'Ortofoto PNOA':pnoa,'OpenStreetMap':osm},{'Parcelario (desde zoom 16)':capaParc},{position:'topright'}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+capaParc.addTo(map);
+function verParcelas(){ if (!PARC) return; const z=map.getZoom()>=16;
+  if (z && !capaParcHecha){ L.geoJSON(PARC,{interactive:false,style:{color:'#ffffff',weight:0.8,opacity:0.9,fill:false}}).addTo(capaParc); capaParcHecha=true; }
+  const el=map.getPane('overlayPane'); capaParc.eachLayer(l=>{ if(l.setStyle) l.setStyle({opacity:z?0.9:0}); }); }
+map.on('zoomend', verParcelas);
+
+const capaRes = L.layerGroup().addTo(map);    // resultados del modo activo
+const capaDib = L.layerGroup().addTo(map);    // dibujo en curso
+const dib = {pts:[], activo:false, tipo:null, max:0, onFin:null, goma:null, tt:null};
+function estado(t){ const e=document.querySelector('.estado'); if (e) e.textContent=t||''; }
+function empezar(tipo, onFin, max=0){ cancelarDibujo(); capaRes.clearLayers(); Object.assign(dib,{pts:[],activo:true,tipo,max,onFin});
+  map.doubleClickZoom.disable(); map.getContainer().classList.add('dibujando');
+  estado(tipo==='area' ? 'Haz clic en los vértices del recinto; doble clic (o «Terminar») para cerrarlo.' : max===2 ? 'Haz clic en el punto de origen y después en el de destino.' : 'Haz clic para añadir vértices; doble clic (o «Terminar») para acabar. Retroceso borra el último.');
+  const b=document.getElementById('b-fin'); if (b) b.disabled=false; }
+function cancelarDibujo(){ dib.activo=false; dib.pts=[]; capaDib.clearLayers(); dib.goma=null; dib.tt=null; map.doubleClickZoom.enable(); map.getContainer().classList.remove('dibujando'); const b=document.getElementById('b-fin'); if (b) b.disabled=true; }
+function redibujar(cursor){ capaDib.clearLayers(); const pts=dib.pts.slice(); if (cursor) pts.push(cursor); if (!pts.length) return;
+  if (dib.tipo==='area' && pts.length>=3) L.polygon(pts,{color:'#dc2626',weight:2.5,fillOpacity:.15,dashArray:cursor?'6 4':null,interactive:false}).addTo(capaDib);
+  else if (pts.length>=2) L.polyline(pts,{color:'#dc2626',weight:3,dashArray:cursor?'6 4':null,interactive:false}).addTo(capaDib);
+  dib.pts.forEach(p=>L.circleMarker(p,{radius:4,color:'#dc2626',weight:2,fillColor:'#fff',fillOpacity:1,interactive:false}).addTo(capaDib));
+  if (cursor && dib.pts.length){ const U=pts.map(aU); let t;
+    if (dib.tipo==='area' && U.length>=3) t=nf(areaAnillo(U.concat([U[0]])),1)+' m²'; else t=nf(acumulada(U).pop(),2)+' m';
+    L.tooltip({permanent:true,direction:'right',offset:[12,0],className:'tt-med'}).setLatLng(cursor).setContent(t).addTo(capaDib); } }
+function anadir(ll){ const p=dib.pts; if (p.length && map.latLngToContainerPoint(p[p.length-1]).distanceTo(map.latLngToContainerPoint(ll))<4) return; p.push(ll); redibujar();
+  if (dib.max && p.length>=dib.max) terminar(); }
+function terminar(){ if (!dib.activo) return; const min = dib.tipo==='area'?3:2; if (dib.pts.length<min){ estado('Faltan puntos: al menos '+min+'.'); return; }
+  const pts=dib.pts.slice(), cb=dib.onFin; cancelarDibujo(); estado(''); if (cb) cb(pts); }
+map.on('click', e => { if (dib.activo){ anadir(e.latlng); return; } clicMapa(e.latlng); });
+map.on('dblclick', e => { if (dib.activo){ L.DomEvent.stop(e); terminar(); } });
+map.on('mousemove', e => { if (dib.activo && dib.pts.length) redibujar(e.latlng); });
+document.addEventListener('keydown', e => { if (!dib.activo || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key==='Escape'){ cancelarDibujo(); estado('Dibujo cancelado.'); } else if (e.key==='Backspace'){ e.preventDefault(); dib.pts.pop(); redibujar(); } else if (e.key==='Enter') terminar(); });
+
+let modo='perfil';
+function clicMapa(ll){ if (modo==='punto') calcPunto(ll); else if (modo==='perfil' && eligiendo) elegirParcela(ll); }
+document.querySelectorAll('.modo').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.modo').forEach(x=>x.setAttribute('aria-selected', x===b?'true':'false')); ponerModo(b.dataset.m); }));
+function ponerModo(m){ modo=m; cancelarDibujo(); capaRes.clearLayers(); eligiendo=false; $('#graf').hidden = !(m==='perfil' && RES); map.invalidateSize();
+  ({perfil:panelPerfil, distancia:panelDistancia, area:panelArea, punto:panelPunto, ruta:panelRuta})[m](); if (m==='perfil' && RES) pintarPerfilMapa(RES); }
+const DET_PIE = '<p class="aviso-pie">'+AVISO+'</p>';
+
+// ================================================================ modo SECCIÓN / PERFIL
+let RES=null, nSec=1, eligiendo=false, selA=null, selB=null, ultimaLinea=null;
+function panelPerfil(){
+  $('#panel').innerHTML = `<h2>Sección y perfil del terreno</h2>
+  <p class="sub">Dibuja una línea o elige dos parcelas enfrentadas: se calcula el perfil del terreno, los cortes con los lindes y la rasante virtual, y se descarga en PDF.</p>
+  <div class="campo"><label for="p-nom">Nombre</label><input id="p-nom" value="${esc(RES?RES.nombre:'S-'+nSec)}">
+  <label for="p-traza">Trazado</label><select id="p-traza"><option value="linea">Dibujar una línea (2 o más puntos)</option><option value="parcelas">Entre dos parcelas (clic en A y luego en B)</option></select>
+  <label for="p-tipo">Tipo de cálculo</label><select id="p-tipo"><option value="auto">Automático</option><option value="seccion">Sección entre parcelas A–B</option><option value="perfil">Perfil longitudinal</option></select>
+  <label for="p-met">Rasante principal</label><select id="p-met"><option value="extremos">Lindes exteriores (extremos)</option><option value="medias">Cotas medias de cada parcela</option><option value="ajuste">Ajuste por mínimos cuadrados</option></select>
+  <label for="p-paso">Muestreo</label><select id="p-paso"><option value="auto">Automático según longitud</option><option value="0.5">cada 0,5 m</option><option value="1">cada 1 m</option><option value="2">cada 2 m</option><option value="5">cada 5 m</option><option value="10">cada 10 m</option></select>
+  <label for="p-exag">Exageración vertical</label><select id="p-exag"><option value="auto">Ajustar al gráfico</option><option value="1">×1 (escala real)</option><option value="2">×2</option><option value="5">×5</option><option value="10">×10</option></select>
+  <label for="p-marg" title="Solo en «Entre dos parcelas»">Prolongar fuera de lindes</label><input id="p-marg" type="number" min="0" max="50" step="1" value="4">
+  <label for="p-orto">Ortofoto en el PDF</label><input id="p-orto" type="checkbox" checked style="width:auto"></div>
+  <div class="btns"><button class="b pri" id="p-dib">Trazar</button><button class="b" id="b-fin" disabled>Terminar</button><button class="b" id="p-borrar">Borrar</button></div>
+  <p class="estado" id="p-est"></p><div id="p-res"></div>
+  <details><summary>Cómo se calcula</summary>
+  <p><b>Sección entre parcelas.</b> Si la línea cruza dos o más parcelas (y mide menos de 400 m), A es la primera parcela que atraviesa y B la última. Se localizan los cortes de la línea con los lindes (planos verticales de las propiedades) y se calcula la <b>rasante virtual</b> entre las cotas del terreno en los lindes exteriores de A y B. Como contraste: la recta entre las cotas medias de cada parcela, el ajuste por mínimos cuadrados del terreno de A+B y el plano inclinado ajustado a las dos parcelas.</p>
+  <p><b>Perfil longitudinal.</b> Para calles, caminos o trayectos largos: longitudes planimétrica y sobre el terreno, desnivel, pendiente media y máxima, subidas y bajadas acumuladas.</p>
+  <p><b>Terreno.</b> ${NOTA_MDT} No incluye la edificación: para cortar los edificios de Catastro usa la herramienta de QGIS (proyecto SECCIONES_PERFILES).</p></details>${DET_PIE}`;
+  if (RES){ $('#p-met').value=RES.metodo; mostrarResultadoPerfil(RES); }
+  $('#p-dib').onclick = () => { const n=$('#p-nom').value.trim()||('S-'+nSec);
+    if ($('#p-traza').value==='parcelas'){ cancelarDibujo(); capaRes.clearLayers(); selA=selB=null; eligiendo=true; map.getContainer().classList.add('dibujando'); estado('Haz clic en la parcela A.'); }
+    else empezar('linea', pts => { ultimaLinea={P:pts.map(aU)}; ejecutarPerfil(ultimaLinea); }); };
+  $('#b-fin').onclick = terminar;
+  $('#p-borrar').onclick = () => { cancelarDibujo(); capaRes.clearLayers(); RES=null; ultimaLinea=null; eligiendo=false; $('#p-res').innerHTML=''; $('#graf').hidden=true; map.invalidateSize(); estado(''); };
+  for (const id of ['#p-tipo','#p-met','#p-paso']) $(id).onchange = () => { if (ultimaLinea) ejecutarPerfil(ultimaLinea); };
+  $('#p-exag').onchange = () => { if (RES) pintarGrafico(); };
+  $('#p-nom').onchange = () => { if (RES){ RES.nombre=$('#p-nom').value.trim()||RES.nombre; mostrarResultadoPerfil(RES); pintarGrafico(); } }; }
+function elegirParcela(ll){ const [x,y]=aU(ll); const f=parcelaEn(x,y,candidatas([x,y,x,y],2)); if (!f){ estado('Ahí no hay parcela del parcelario. Prueba de nuevo.'); return; }
+  if (!selA){ selA=f; L.geoJSON(f,{interactive:false,style:{color:'#1d4ed8',weight:3,fillOpacity:.25}}).addTo(capaRes); estado('A: '+etiqParc(f.__k)+'. Ahora haz clic en la parcela B.'); return; }
+  if (f.__k===selA.__k){ estado('Esa es la parcela A. Elige otra para B.'); return; }
+  selB=f; eligiendo=false; map.getContainer().classList.remove('dibujando');
+  try { const P=lineaEntreParcelas(selA,selB, Math.max(0,+$('#p-marg').value||0)); ultimaLinea={P, refA:selA.__k, refB:selB.__k}; ejecutarPerfil(ultimaLinea); }
+  catch(e){ estado(e.message); } }
+function lineaEntreParcelas(fA,fB,mg){ const ca=centroInterior(muestreo(fA.__u,4000)), cb=centroInterior(muestreo(fB.__u,4000)); if (!ca||!cb) throw new Error('No se puede trazar la sección entre esas parcelas.');
+  const dx=cb[0]-ca[0], dy=cb[1]-ca[1], l=Math.hypot(dx,dy); const u=[dx/l,dy/l]; const P0=[ca[0]-u[0]*500, ca[1]-u[1]*500], P1=[cb[0]+u[0]*500, cb[1]+u[1]*500];
+  const P=[P0,P1], C=acumulada(P); const da=cortesConPolys(P,C,fA.__u), db=cortesConPolys(P,C,fB.__u); if (!da.length||!db.length) throw new Error('No se pudo cortar los lindes.');
+  const d0=Math.min(...da)-mg, d1=Math.max(...db)+mg; return [interp(P,C,d0), interp(P,C,d1)]; }
+function ejecutarPerfil(lin){ const st=$('#p-est'); st.textContent='Calculando…';
+  setTimeout(()=>{ try {
+    RES = calcularPerfil(lin.P, {nombre:$('#p-nom').value.trim()||('S-'+nSec), paso:$('#p-paso').value, tipo:$('#p-tipo').value, metodo:$('#p-met').value, refA:lin.refA, refB:lin.refB});
+    if (RES.nombre===('S-'+nSec)) nSec++;
+    st.textContent=RES.aviso||''; mostrarResultadoPerfil(RES); pintarPerfilMapa(RES); $('#graf').hidden=false; map.invalidateSize(); pintarGrafico();
+  } catch(e){ console.error(e); st.textContent=e.message; } }, 20); }
+function pintarPerfilMapa(res){ capaRes.clearLayers();
+  for (const [k,col] of [[res.A,'#1d4ed8'],[res.B,'#c2410c']]){ const f=k&&fParc(k); if (f) L.geoJSON(f,{interactive:false,style:{color:col,weight:2.5,fillOpacity:.22}}).addTo(capaRes); }
+  const ll=res.P.map(p=>aLL(p[0],p[1])); L.polyline(ll,{color:'#fff',weight:6,opacity:.9,interactive:false}).addTo(capaRes); L.polyline(ll,{color:'#dc2626',weight:3,interactive:false}).addTo(capaRes);
+  res.cortes.forEach(c=>L.circleMarker(aLL(c.x,c.y),{radius:4,color:'#fff',weight:1.5,fillColor:'#111',fillOpacity:1}).bindTooltip(c.rol+' · d '+nf(c.d)+' m · TN '+nf(c.zt)+(c.rvz!=null?' · RV '+nf(c.rvz):'')).addTo(capaRes));
+  L.marker(ll[0],{icon:L.divIcon({className:'',html:'<b style="background:#fff;padding:1px 4px;border-radius:3px;border:1px solid #dc2626">0</b>'})}).addTo(capaRes);
+  const bl=L.latLngBounds(ll), pa=map.latLngToContainerPoint(bl.getSouthWest()), pb=map.latLngToContainerPoint(bl.getNorthEast());
+  if (!map.getBounds().contains(bl) || pa.distanceTo(pb)<90) map.fitBounds(bl.pad(0.6),{maxZoom:19}); }
+function mostrarResultadoPerfil(res){ const sec=res.tipo==='seccion'; let h='';
+  h += `<h3>${sec?'Sección entre parcelas':'Perfil longitudinal'} · ${esc(res.nombre)}</h3>`;
+  if (sec){ h += `<p class="nota"><b style="color:#1d4ed8">A</b> ${esc(etiqParc(res.A))}<br><b style="color:#c2410c">B</b> ${esc(etiqParc(res.B))}</p>`;
+    h += `<div class="kpis"><div class="kpi"><b>${sg(res.zBe-res.zAe)} m</b><span>Desnivel entre lindes exteriores</span></div><div class="kpi"><b>${nf(res.pend[res.metodo])} %</b><span>Pendiente de la rasante principal</span></div>
+      <div class="kpi"><b>${nf(res.dBe-res.dAe)} m</b><span>Distancia entre lindes exteriores</span></div><div class="kpi"><b>${res.zmA!=null?sg(res.zmB-res.zmA)+' m':'—'}</b><span>Desnivel entre cotas medias</span></div></div>`;
+    h += `<table><tr><th>Rasante</th><th>Pendiente</th></tr>${['extremos','medias','ajuste'].filter(k=>res.rv[k]).map(k=>`<tr><td${k===res.metodo?' style="font-weight:700"':''}>${NOM_RV[k]}</td><td>${nf(res.pend[k])} %</td></tr>`).join('')}
+      ${res.plano?`<tr><td>Plano 3D ajustado a A+B</td><td>${nf(res.plano.pend)} % hacia ${nf(res.plano.azi,0)}° ${ROSA(res.plano.azi)} · RMSE ${nf(res.plano.rmse)} m</td></tr>`:''}</table>`; }
+  else h += `<div class="kpis"><div class="kpi"><b>${nf(res.L)} m</b><span>Longitud planimétrica (${nf(res.L3)} m sobre el terreno)</span></div><div class="kpi"><b>${sg(res.z1-res.z0)} m</b><span>Desnivel inicio–fin (${nf(res.z0)} → ${nf(res.z1)})</span></div>
+      <div class="kpi"><b>${sg(res.pend.extremos)} %</b><span>Pendiente media</span></div><div class="kpi"><b>${nf(res.pmax)} %</b><span>Pendiente máxima (tramo de ${nf(res.wpmax,0)} m)</span></div>
+      <div class="kpi"><b>${nf(res.subida,1)} / ${nf(res.bajada,1)} m</b><span>Subida / bajada acumuladas</span></div><div class="kpi"><b>${nf(res.zmin)} – ${nf(res.zmax)}</b><span>Cota mínima – máxima (m)</span></div></div>`;
+  if (res.cortes.length){ h += `<h3>Cortes con los lindes (${res.cortes.length})</h3><div class="tabla-scroll"><table><tr><th>d (m)</th><th style="text-align:left">Linde</th><th>Terreno</th><th>Rasante</th><th>TN−RV</th></tr>`+
+    res.cortes.map(c=>`<tr><td>${nf(c.d)}</td><td class="izq" title="${esc((c.ant||'vía pública')+' → '+(c.post||'vía pública'))}">${esc(c.rol)}</td><td>${nf(c.zt)}</td><td>${c.rvz!=null?nf(c.rvz):'—'}</td><td>${(c.zt!=null&&c.rvz!=null)?sg(c.zt-c.rvz):'—'}</td></tr>`).join('')+'</table></div>'; }
+  h += `<div class="btns" style="margin-top:12px"><button class="b pri" id="p-pdf">Descargar PDF</button><button class="b" id="p-csv">Descargar CSV</button><button class="b" id="p-ver">Ver gráfico</button></div>`;
+  $('#p-res').innerHTML=h; $('#p-pdf').onclick=()=>pdfPerfil(res); $('#p-csv').onclick=()=>guardar(csvPerfil(res),(sec?'seccion_':'perfil_')+limpio(res.nombre)+'.csv',$('#p-est'));
+  $('#p-ver').onclick=()=>{ $('#graf').hidden=false; map.invalidateSize(); pintarGrafico(); }; }
+// gráfico en pantalla
+const gcv=$('#gcanvas'); let marcaHover=null;
+function pintarGrafico(){ if (!RES || $('#graf').hidden) return; const dpr=window.devicePixelRatio||1; gcv.width=Math.max(300,gcv.clientWidth*dpr); gcv.height=Math.max(120,gcv.clientHeight*dpr);
+  const E=dibujarGrafico(gcv,RES,{exag:$('#p-exag')?$('#p-exag').value:'auto', s:dpr}); $('#g-tit').textContent=(RES.tipo==='seccion'?'Sección ':'Perfil ')+RES.nombre+' · E.V. ×'+nf(E,1); }
+new ResizeObserver(()=>pintarGrafico()).observe(gcv);
+gcv.addEventListener('mousemove', e=>{ if (!RES||!RES.__tf) return; const dpr=window.devicePixelRatio||1, t=RES.__tf; const d=(e.offsetX*dpr-t.ml)/t.pw*t.L; if (d<0||d>t.L) return;
+  const p=interp(RES.P,RES.C,d), z=zAt(p[0],p[1]); const f=parcelaEn(p[0],p[1],candidatas([p[0],p[1],p[0],p[1]],1)); const rv=RES.rv[RES.metodo];
+  $('#g-info').textContent='d '+nf(d,1)+' m · terreno '+nf(z)+' m'+((d>=RES.d0&&d<=RES.d1)?' · rasante '+nf(rv(d))+' m':'')+' · '+(f?etiqParc(f.__k):'vía o espacio público');
+  const ll=aLL(p[0],p[1]); if (!marcaHover) marcaHover=L.circleMarker(ll,{radius:7,color:'#111',weight:2,fillColor:'#facc15',fillOpacity:1,interactive:false}).addTo(map); else marcaHover.setLatLng(ll); });
+gcv.addEventListener('mouseleave', ()=>{ if (marcaHover){ map.removeLayer(marcaHover); marcaHover=null; } });
+$('#g-cerrar').onclick=()=>{ $('#graf').hidden=true; map.invalidateSize(); };
+
+// ================================================================ modo DISTANCIA
+let MED=null;
+function panelDistancia(){ $('#panel').innerHTML = `<h2>Distancia</h2><p class="sub">Mide una línea quebrada de dos o más puntos: longitud planimétrica y sobre el terreno, tramos y pendientes.</p>
+  <div class="btns"><button class="b pri" id="d-dib">Medir</button><button class="b" id="b-fin" disabled>Terminar</button><button class="b" id="d-borrar">Borrar</button></div><p class="estado" id="d-est"></p><div id="d-res"></div>${DET_PIE}`;
+  $('#d-dib').onclick=()=>empezar('linea', pts=>{ MED={tipo:'linea',P:pts.map(aU)}; resultadoDistancia(); });
+  $('#b-fin').onclick=terminar; $('#d-borrar').onclick=()=>{ cancelarDibujo(); capaRes.clearLayers(); MED=null; $('#d-res').innerHTML=''; estado(''); };
+  if (MED&&MED.tipo==='linea') resultadoDistancia(); }
+function longTerreno(P){ let l=0, zp=null; const C=acumulada(P), Lt=C[C.length-1], s=Math.max(1,Lt/3000); for (let d=0; d<=Lt+1e-6; d+=s){ const p=interp(P,C,Math.min(d,Lt)); const z=zAt(p[0],p[1]); if (zp!=null&&z!=null) l+=Math.hypot(s,z-zp); else l+=d?s:0; zp=z; } return l; }
+function resultadoDistancia(){ const P=MED.P, C=acumulada(P), Lt=C[C.length-1]; const z=P.map(p=>zAt(p[0],p[1])); MED.L=Lt; MED.L3=longTerreno(P);
+  capaRes.clearLayers(); const ll=P.map(p=>aLL(p[0],p[1])); L.polyline(ll,{color:'#fff',weight:6,interactive:false}).addTo(capaRes); L.polyline(ll,{color:'#dc2626',weight:3,interactive:false}).addTo(capaRes);
+  ll.forEach((q,i)=>L.circleMarker(q,{radius:4,color:'#dc2626',fillColor:'#fff',fillOpacity:1,weight:2}).bindTooltip('V'+(i+1)+' · '+nf(C[i],2)+' m').addTo(capaRes));
+  MED.tramos=P.slice(1).map((p,i)=>{ const l=C[i+1]-C[i], dz=(z[i+1]!=null&&z[i]!=null)?z[i+1]-z[i]:null; return {i:i+1,l,acu:C[i+1],dz,pend:dz!=null&&l?dz/l*100:null,rumbo:rumbo(p[0]-P[i][0],p[1]-P[i][1])}; });
+  let h=`<div class="kpis"><div class="kpi"><b>${nf(Lt)} m</b><span>Longitud planimétrica (UTM)</span></div><div class="kpi"><b>${nf(MED.L3)} m</b><span>Longitud sobre el terreno</span></div>
+    <div class="kpi"><b>${sg(z[z.length-1]!=null&&z[0]!=null?z[z.length-1]-z[0]:null)} m</b><span>Desnivel inicio–fin</span></div><div class="kpi"><b>${P.length-1}</b><span>Tramos</span></div></div>
+    <h3>Tramos</h3><div class="tabla-scroll"><table><tr><th>Tramo</th><th>Longitud</th><th>Acumulada</th><th>Rumbo</th><th>Desnivel</th><th>Pend.</th></tr>`+
+    MED.tramos.map(t=>`<tr><td>V${t.i}–V${t.i+1}</td><td>${nf(t.l)}</td><td>${nf(t.acu)}</td><td>${nf(t.rumbo,0)}° ${ROSA(t.rumbo)}</td><td>${sg(t.dz)}</td><td>${sg(t.pend,1)} %</td></tr>`).join('')+`</table></div>
+    <div class="btns" style="margin-top:12px"><button class="b pri" id="d-pdf">Descargar PDF</button><button class="b" id="d-csv">CSV de vértices</button><button class="b" id="d-perfil">Ver su perfil</button></div>`;
+  $('#d-res').innerHTML=h; $('#d-pdf').onclick=()=>pdfMedicion(MED,$('#d-est')); $('#d-csv').onclick=()=>guardar(csvVertices(MED.P),'distancia_vertices.csv',$('#d-est'));
+  $('#d-perfil').onclick=()=>{ const P=MED.P; document.querySelector('.modo[data-m="perfil"]').click(); $('#p-tipo').value='perfil'; ultimaLinea={P}; ejecutarPerfil(ultimaLinea); }; }
+function csvVertices(P){ const L=['vertice;x_utm;y_utm;longitud;latitud;z_terreno']; P.forEach((p,i)=>{ const ll=aLL(p[0],p[1]), z=zAt(p[0],p[1]); L.push(['V'+(i+1),p[0].toFixed(2),p[1].toFixed(2),ll.lng.toFixed(7),ll.lat.toFixed(7),z==null?'':z.toFixed(2)].map(v=>v.replace('.',',')).join(';')); });
+  return new Blob(['﻿'+L.join('\r\n')],{type:'text/csv;charset=utf-8'}); }
+
+// ================================================================ modo ÁREA
+function panelArea(){ $('#panel').innerHTML = `<h2>Área</h2><p class="sub">Dibuja un recinto: superficie, perímetro, cotas y pendiente media del terreno, y coordenadas de los vértices.</p>
+  <div class="btns"><button class="b pri" id="a-dib">Medir</button><button class="b" id="b-fin" disabled>Terminar</button><button class="b" id="a-borrar">Borrar</button></div><p class="estado" id="a-est"></p><div id="a-res"></div>${DET_PIE}`;
+  $('#a-dib').onclick=()=>empezar('area', pts=>{ MED={tipo:'area',P:pts.map(aU)}; resultadoArea(); });
+  $('#b-fin').onclick=terminar; $('#a-borrar').onclick=()=>{ cancelarDibujo(); capaRes.clearLayers(); MED=null; $('#a-res').innerHTML=''; estado(''); };
+  if (MED&&MED.tipo==='area') resultadoArea(); }
+function resultadoArea(){ const P=MED.P, ring=P.concat([P[0]]); MED.A=areaAnillo(ring); MED.per=acumulada(ring).pop();
+  const m=muestreo([[ring]],30000); MED.zs=m.Z.length?{min:Math.min(...m.Z),max:Math.max(...m.Z),med:m.Z.reduce((a,b)=>a+b,0)/m.Z.length}:null; MED.plano=planoLSQ(m.X,m.Y,m.Z);
+  const cands=candidatas(bboxU(P),1); const parcs=new Set(); m.X.forEach((x,i)=>{ if (i%3) return; const f=parcelaEn(x,m.Y[i],cands); if (f) parcs.add(f.__k); }); MED.parcs=[...parcs];
+  let auto=false; for (let i=0;i<P.length-1&&!auto;i++) for (let j=i+2;j<P.length;j++){ if (i===0&&j===P.length-1) continue; if (cruce(P[i],P[i+1],P[j],P[(j+1)%P.length])!=null){ auto=true; break; } }
+  capaRes.clearLayers(); const ll=P.map(p=>aLL(p[0],p[1])); L.polygon(ll,{color:'#dc2626',weight:3,fillOpacity:.15,interactive:false}).addTo(capaRes);
+  ll.forEach((q,i)=>L.circleMarker(q,{radius:4,color:'#dc2626',fillColor:'#fff',fillOpacity:1,weight:2}).bindTooltip('V'+(i+1)).addTo(capaRes));
+  let h=`${auto?'<p class="estado" style="color:#c0392b">El recinto se corta a sí mismo: la superficie no es fiable. Redibújalo.</p>':''}
+    <div class="kpis"><div class="kpi"><b>${nf(MED.A)} m²</b><span>Superficie (${nf(MED.A/10000,4)} ha)</span></div><div class="kpi"><b>${nf(MED.per)} m</b><span>Perímetro</span></div>
+    <div class="kpi"><b>${MED.zs?nf(MED.zs.min)+' – '+nf(MED.zs.max):'—'}</b><span>Cota mínima – máxima (m) · media ${MED.zs?nf(MED.zs.med):'—'}</span></div>
+    <div class="kpi"><b>${MED.plano?nf(MED.plano.pend,1)+' %':'—'}</b><span>Pendiente media ${MED.plano?'hacia '+ROSA(MED.plano.azi)+' ('+nf(MED.plano.azi,0)+'°)':''}</span></div></div>
+    <p class="nota">Parcelas del parcelario dentro del recinto: ${MED.parcs.length}${MED.parcs.length&&MED.parcs.length<=6?' — '+MED.parcs.map(k=>esc(etiqParc(k))).join('; '):''}</p>
+    <h3>Vértices (ETRS89 UTM 30N)</h3><div class="tabla-scroll"><table><tr><th>Vértice</th><th>X</th><th>Y</th><th>Cota</th><th>Lado</th></tr>`+
+    P.map((p,i)=>{ const q=ring[i+1]; return `<tr><td>V${i+1}</td><td>${nf(p[0])}</td><td>${nf(p[1])}</td><td>${nf(zAt(p[0],p[1]))}</td><td>${nf(Math.hypot(q[0]-p[0],q[1]-p[1]))}</td></tr>`; }).join('')+`</table></div>
+    <div class="btns" style="margin-top:12px"><button class="b pri" id="a-pdf">Descargar PDF</button><button class="b" id="a-csv">CSV de vértices</button></div>`;
+  $('#a-res').innerHTML=h; $('#a-pdf').onclick=()=>pdfMedicion(MED,$('#a-est')); $('#a-csv').onclick=()=>guardar(csvVertices(MED.P),'area_vertices.csv',$('#a-est')); }
+
+async function pdfMedicion(M, st){ st.textContent='Generando el PDF…';
+  try { const doc=nuevoPDF(); const lin=M.tipo==='linea';
+    cabecera(doc, lin?'MEDICIÓN DE DISTANCIA':'MEDICIÓN DE SUPERFICIE', lin? 'Longitud '+nf(M.L)+' m · '+(M.P.length-1)+' tramo(s)' : 'Superficie '+nf(M.A)+' m² ('+nf(M.A/10000,4)+' ha) · perímetro '+nf(M.per)+' m');
+    const pl=await planoSituacion(lin?{linea:M.P}:{poligono:M.P},178,170,{orto:true}); doc.addImage(pl.url,'JPEG',8,23.5,178,170); doc.setDrawColor(90); doc.setLineWidth(0.3); doc.rect(8,23.5,178,170);
+    const c=bboxU(M.P); doc.addImage(situacionTermino((c[0]+c[2])/2,(c[1]+c[3])/2,26),'PNG',159,24.5,26,26); doc.setDrawColor(150); doc.rect(159,24.5,26,26);
+    let y;
+    if (lin){ const z0=zAt(...M.P[0]), z1=zAt(...M.P[M.P.length-1]);
+      y=bloque(doc,192,26,97,'RESULTADOS',[['Longitud planimétrica',nf(M.L)+' m',true],['Longitud sobre el terreno',nf(M.L3)+' m'],['Cota inicio / fin',nf(z0)+' / '+nf(z1)+' m'],['Desnivel inicio-fin',sg(z1!=null&&z0!=null?z1-z0:null)+' m'],['Pendiente media',sg(z1!=null&&z0!=null?(z1-z0)/M.L*100:null)+' %']],40);
+      y=tablaPDF(doc,192,y+4,97,'TRAMOS',['Tramo','Rumbo','Long. (m)','Acum. (m)','Pend.'],M.tramos.map(t=>['V'+t.i+'-V'+(t.i+1),nf(t.rumbo,0)+'° '+ROSA(t.rumbo),nf(t.l),nf(t.acu),sg(t.pend,1)+' %']),[17,22,20,20,18],14); }
+    else { y=bloque(doc,192,26,97,'RESULTADOS',[['Superficie',nf(M.A)+' m² ('+nf(M.A/10000,4)+' ha)',true],['Perímetro',nf(M.per)+' m'],['Cota mín. / máx. / media',M.zs?nf(M.zs.min)+' / '+nf(M.zs.max)+' / '+nf(M.zs.med)+' m':'—'],
+        ['Pendiente media (plano)',M.plano?nf(M.plano.pend,1)+' % hacia '+ROSA(M.plano.azi)+' ('+nf(M.plano.azi,0)+'°)':'—'],['Parcelas en el recinto',String(M.parcs.length)]],40); }
+    const ring=M.P.concat([M.P[0]]);
+    tablaPDF(doc,192,y+4,97,'VÉRTICES · ETRS89 UTM 30N',['Vért.','X','Y','Cota'],M.P.map((p,i)=>['V'+(i+1),nf(p[0]),nf(p[1]),nf(zAt(p[0],p[1]))]),[12,32,32,21],Math.max(4,Math.floor((186-y)/3.6)-3),0);
+    doc.setFontSize(5.8); doc.setTextColor(60); doc.text('Plano'+(pl.orto?' sobre ortofoto PNOA':'')+' con el parcelario municipal',9,191.8);
+    pie(doc, FUENTES+'Las cotas del terreno son orientativas (MDT05). Medición gráfica sin valor de levantamiento topográfico.');
+    await guardar(doc.output('blob'), (lin?'medicion_distancia_':'medicion_area_')+new Date().toISOString().slice(0,10)+'.pdf', st);
+  } catch(e){ console.error(e); st.textContent='No se pudo generar el PDF: '+e.message; } }
+
+// ================================================================ modo PUNTO
+function panelPunto(){ $('#panel').innerHTML = `<h2>Coordenadas y cota de un punto</h2><p class="sub">Haz clic en el mapa para obtener sus coordenadas UTM y geográficas, la cota del terreno y la parcela.</p><p class="estado" id="u-est"></p><div id="u-res"></div>${DET_PIE}`;
+  map.getContainer().classList.add('dibujando'); }
+function calcPunto(ll){ const [x,y]=aU(ll), z=zAt(x,y); const f=parcelaEn(x,y,candidatas([x,y,x,y],2)); const p=f?f.properties:{};
+  capaRes.clearLayers(); L.circleMarker(ll,{radius:7,color:'#fff',weight:2,fillColor:'#dc2626',fillOpacity:1}).addTo(capaRes);
+  if (f) L.geoJSON(f,{interactive:false,style:{color:'#facc15',weight:2.5,fillOpacity:.12}}).addTo(capaRes);
+  const txt='X '+x.toFixed(2)+'  Y '+y.toFixed(2)+'  (ETRS89 UTM 30N)';
+  $('#u-res').innerHTML=`<table><tr><th>Dato</th><th>Valor</th></tr><tr><td>X UTM (ETRS89 huso 30)</td><td>${nf(x)}</td></tr><tr><td>Y UTM</td><td>${nf(y)}</td></tr>
+    <tr><td>Latitud / longitud (ETRS89)</td><td>${ll.lat.toFixed(6)} / ${ll.lng.toFixed(6)}</td></tr><tr><td>Cota del terreno (MDT05)</td><td>${nf(z)} m</td></tr>
+    <tr><td>Parcela</td><td>${f?esc(p.refcat||'—'):'Vía o espacio público'}</td></tr>${f?`<tr><td>Dirección</td><td>${esc(p.direccion||'—')}</td></tr><tr><td>Ordenanza</td><td>${esc(p.ordenanza||'—')}</td></tr>`:''}</table>
+    <div class="btns" style="margin-top:10px"><button class="b" id="u-cop">Copiar coordenadas UTM</button><a class="b" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}">Abrir en Google Maps</a></div>`;
+  $('#u-cop').onclick=()=>{ navigator.clipboard && navigator.clipboard.writeText(txt).then(()=>$('#u-est').textContent='Copiado: '+txt).catch(()=>$('#u-est').textContent=txt); }; }
+
+// ================================================================ modo RUTA
+function panelRuta(){ $('#panel').innerHTML = `<h2>Distancia entre dos puntos y ruta</h2><p class="sub">Marca origen y destino. Se calcula la distancia en línea recta, el desnivel y el rumbo; la ruta por calles, carril bici o transporte público se abre en Google Maps.</p>
+  <div class="btns"><button class="b pri" id="r-dib">Marcar origen y destino</button><button class="b" id="r-borrar">Borrar</button></div><p class="estado" id="r-est"></p><div id="r-res"></div>${DET_PIE}`;
+  $('#r-dib').onclick=()=>empezar('linea', pts=>resultadoRuta(pts), 2);
+  $('#r-borrar').onclick=()=>{ cancelarDibujo(); capaRes.clearLayers(); $('#r-res').innerHTML=''; estado(''); }; }
+function resultadoRuta(pts){ const P=pts.map(aU), [a,b]=P, d=Math.hypot(b[0]-a[0],b[1]-a[1]), za=zAt(...a), zb=zAt(...b), rb=rumbo(b[0]-a[0],b[1]-a[1]);
+  capaRes.clearLayers(); L.polyline(pts,{color:'#dc2626',weight:3,dashArray:'8 6',interactive:false}).addTo(capaRes);
+  pts.forEach((q,i)=>L.marker(q,{icon:L.divIcon({className:'',html:'<b style="background:'+(i?'#c2410c':'#1d4ed8')+';color:#fff;padding:2px 6px;border-radius:4px">'+(i?'Destino':'Origen')+'</b>',iconAnchor:[-6,10]})}).addTo(capaRes));
+  const o=pts[0].lat.toFixed(6)+','+pts[0].lng.toFixed(6), t=pts[1].lat.toFixed(6)+','+pts[1].lng.toFixed(6);
+  const gm=m=>`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${t}&travelmode=${m}`;
+  $('#r-res').innerHTML=`<div class="kpis"><div class="kpi"><b>${nf(d)} m</b><span>Distancia en línea recta (${nf(d/1000,3)} km)</span></div><div class="kpi"><b>${sg(za!=null&&zb!=null?zb-za:null)} m</b><span>Desnivel origen → destino</span></div>
+    <div class="kpi"><b>${nf(rb,0)}° ${ROSA(rb)}</b><span>Rumbo (desde el norte)</span></div><div class="kpi"><b>${nf(za,1)} → ${nf(zb,1)}</b><span>Cotas del terreno (m)</span></div></div>
+    <h3>Ruta en Google Maps</h3><div class="btns"><a class="b" target="_blank" rel="noopener" href="${gm('driving')}">Coche</a><a class="b" target="_blank" rel="noopener" href="${gm('walking')}">A pie</a><a class="b" target="_blank" rel="noopener" href="${gm('bicycling')}">Bicicleta</a><a class="b" target="_blank" rel="noopener" href="${gm('transit')}">Transporte público</a></div>
+    <p class="nota">El cálculo de rutas por la red viaria lo hace Google Maps; aquí no se guarda ni se envía nada más que las coordenadas al pulsar el enlace.</p>
+    <div class="btns"><button class="b" id="r-perfil">Perfil del tramo recto</button></div>`;
+  $('#r-perfil').onclick=()=>{ document.querySelector('.modo[data-m="perfil"]').click(); $('#p-tipo').value='perfil'; ultimaLinea={P}; ejecutarPerfil(ultimaLinea); }; }
+
+// ================================================================ arranque
+panelPerfil();
+Promise.all([cargarMDT(), cargarParcelas(), cargarTermino()]).then(([m,p,t])=>{ MDT=m; PARC=p; TERM=t;
+  if (TERM){ TERMU=[]; for (const f of TERM.features){ const g=f.geometry; const polys=g.type==='Polygon'?[g.coordinates]:g.coordinates; for (const pl of polys) TERMU.push(pl.map(r=>r.map(c=>proj4('EPSG:4326',UTM,c)))); }
+    const lt=L.geoJSON(TERM,{interactive:false,style:{color:'#ffd400',weight:2,fill:false}}).addTo(map); map.fitBounds(lt.getBounds()); }
+  verParcelas(); $('#cargando').hidden=true;
+  if (!MDT) estado('Aviso: no se ha cargado el modelo del terreno (data/mdt.js); las cotas no estarán disponibles.');
+}).catch(e=>{ console.error(e); $('#cargando').textContent='No se pudieron cargar los datos: '+e.message; });
+})();
+</script>
+</body></html>
